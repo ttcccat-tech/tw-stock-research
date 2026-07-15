@@ -1,0 +1,5 @@
+# 忽略本地暫存檔
+.DS_Store
+*.swp
+*.tmp
+*.log
