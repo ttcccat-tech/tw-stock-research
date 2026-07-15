@@ -2,4 +2,5 @@
 .DS_Store
 *.swp
 *.tmp
-*.log
+*.log# 自動產生的歷史資料 (cron 會持續更新，但不入版控)
+price-history/daily-prices.csv

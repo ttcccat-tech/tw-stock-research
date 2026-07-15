@@ -21,6 +21,11 @@
 tw-stock-research/
 ├── README.md                          # 本檔
 ├── MONITORING.md                      # 監控清單與觸發規則
+├── price-history/                     # 每日收盤價歷史 (CSV)
+│   └── daily-prices.csv               # 由 cron 自動累積
+├── scripts/                           # 工具腳本
+│   ├── fetch_prices.py                # 抓即時報價 (TWSE + TPEx API)
+│   └── analyze.py                     # 技術分析 (MA/RSI/目標價對照)
 ├── reports/                           # 個股研究報告 (一檔一支 MD)
 │   ├── 2753-BaFangYunJi.md            # 八方雲集 (連鎖餐飲)
 │   ├── 1734-XingHui.md                # 杏輝藥品 (製藥/保健)
