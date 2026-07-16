@@ -25,6 +25,10 @@ import urllib.request
 from datetime import datetime, date
 from pathlib import Path
 
+# 從統一清單載入
+sys.path.insert(0, str(Path(__file__).parent))
+from watchlist import WATCHLIST, BUY_ZONES, get_pairs, get_zone  # noqa: E402
+
 # ========== 設定 ==========
 REPO_DIR = Path("/var/repo/tw-stock-research")
 REPORTS_DIR = REPO_DIR / "reports"
@@ -37,31 +41,11 @@ REFERER = "https://mis.twse.com.tw/stock/index.jsp"
 TWSE_MIS = "https://mis.twse.com.tw/stock/api/getStockInfo.jsp"
 TPEX_PERATIO = "https://www.tpex.org.tw/v1/stock/earning_yield_ratio"
 
-# ========== 監控清單 ==========
-WATCHLIST = {
-    "2753": ("tse", "八方雲集", "上市"),
-    "1734": ("tse", "杏輝", "上市"),
-    "6509": ("otc", "聚和國際", "上櫃"),
-    "2834": ("tse", "臺企銀", "上市"),
-    # AI 概念股
-    "3479": ("tse", "安勤", "上市"),
-    "6412": ("tse", "群電", "上市"),
-    "2241": ("tse", "艾姆勒", "上市"),
-    "4977": ("tse", "眾達-KY", "上市"),
-}
+# ========== 監控清單與 BUY_ZONES 從 watchlist.py 載入 ==========
+# (統一來源，未來只改 watchlist.py 即可同步所有腳本)
 
-# ========== 進場區間 (從各 reports/*.md 的「交易決策框架」擷取) ==========
-# 格式: ticker -> {'buy_min': 積極進場下緣, 'buy_max': 保守進場上緣, 'target': 目標價, 'stop': 停損價, 'rating': 評等}
-BUY_ZONES = {
-    "2753": {"buy_min": 145.0, "buy_max": 200.0, "target": 235.0, "stop": 150.0, "rating": "Hold"},
-    "1734": {"buy_min": 27.0, "buy_max": 36.0, "target": 40.0, "stop": 27.0, "rating": "Buy"},
-    "6509": {"buy_min": 45.0, "buy_max": 55.0, "target": 55.0, "stop": 42.0, "rating": "Buy"},
-    "2834": {"buy_min": 14.0, "buy_max": 17.5, "target": 19.0, "stop": None, "rating": "Buy (存股)"},
-    "3479": {"buy_min": 115.0, "buy_max": 160.0, "target": 165.0, "stop": 115.0, "rating": "Watch"},
-    "6412": {"buy_min": 75.0, "buy_max": 100.0, "target": 100.0, "stop": None, "rating": "Buy (存股)"},
-    "2241": {"buy_min": 42.0, "buy_max": 70.0, "target": 85.0, "stop": 42.0, "rating": "Buy 爆發型"},
-    "4977": {"buy_min": 120.0, "buy_max": 200.0, "target": 220.0, "stop": 120.0, "rating": "Buy 核心持股"},
-}
+# ========== 進場區間 (從 watchlist.py 統一載入) ==========
+# 來源：reports/*.md 報告中的「交易決策框架」段落
 
 # ========== 觸發規則 ==========
 def should_alert(code, current_price, prev_alert_price=None):
@@ -255,7 +239,7 @@ def main():
     print(f"\n[{now.strftime('%H:%M:%S')}] Quinn 盤中監控啟動")
     print(f"   監控標的: {len(WATCHLIST)} 支")
 
-    pairs = [(code, info) for code, info in WATCHLIST.items()]
+    pairs = get_pairs()
     try:
         quotes = fetch_quote(pairs)
     except Exception as e:

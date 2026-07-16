@@ -4,12 +4,12 @@
 
 功能：
 1. 抓取監控清單的即時報價 (TWSE MIS API)
-2. 抓取殖利率、本益比 (BWIBBU API)
+2. 抓取殖利率、本益比 (上市 BWIBBU / 上櫃 TPEx)
 3. 寫入 CSV 歷史檔 (供未來技術分析)
 
 使用方式：
-  python3 fetch_prices.py              # 抓取 4 支監控股
-  python3 fetch_prices.py 2330 2317    # 抓取指定股票
+  python3 fetch_prices.py              # 抓全部 WATCHLIST (預設 8 支)
+  python3 fetch_prices.py 2330 2317    # 抓指定股票
 """
 
 import json
@@ -22,45 +22,17 @@ import urllib.request
 import urllib.parse
 import ssl
 
+# 從統一清單載入
+sys.path.insert(0, str(Path(__file__).parent))
+from watchlist import WATCHLIST, get_pairs  # noqa: E402
+
 # ========== 設定 ==========
 REPO_DIR = Path("/var/repo/tw-stock-research")
 HISTORY_DIR = REPO_DIR / "price-history"
 HISTORY_DIR.mkdir(exist_ok=True)
 
-# 監控清單 (上市 tse / 上櫃 otc)
-WATCHLIST = {
-    # ticker: (exchange, name, market)
-    "2753": ("tse", "八方雲集", "上市"),
-    "1734": ("tse", "杏輝", "上市"),
-    "6509": ("otc", "聚和國際", "上櫃"),
-    "2834": ("tse", "臺企銀", "上市"),
-}
-
-# AI 概念股候選 (用 add_watchlist 動態加入)
-AI_WATCHLIST = {
-    # 邊緣運算 + IPC (優先)
-    "3416": ("tse", "融程電", "上市"),
-    "3479": ("otc", "安勤", "上櫃"),
-    "3022": ("tse", "威強電", "上市"),
-    "8234": ("tse", "新漢", "上市"),
-    "6414": ("tse", "樺漢", "上市"),
-    # 矽光子 / CPO
-    "2455": ("tse", "全新", "上市"),
-    "3163": ("otc", "波若威", "上櫃"),
-    "3363": ("otc", "上詮", "上櫃"),
-    "3081": ("otc", "聯亞", "上櫃"),
-    "4977": ("tse", "眾達-KY", "上市"),
-    # AI 散熱
-    "8088": ("otc", "艾姆勒", "上櫃"),
-    "6805": ("tse", "富世達", "上市"),
-    "3483": ("tse", "力致", "上市"),
-    "3071": ("tse", "協禧", "上市"),
-    # AI 電源
-    "4931": ("tse", "新盛力", "上市"),
-    "3015": ("tse", "全漢", "上市"),
-    "8109": ("tse", "博大", "上市"),
-    "6412": ("tse", "群電", "上市"),
-}
+# 統一監控清單 — 從 watchlist.py 載入 (Single Source of Truth)
+# 詳見 watchlist.py 註解說明
 
 UA = "Mozilla/5.0 (compatible; QuinnStockBot/1.0)"
 REFERER = "https://mis.twse.com.tw/stock/index.jsp"
@@ -161,31 +133,21 @@ def get_market_status():
 # ========== 主程式 ==========
 def main():
     # 解析 CLI 參數
-    # --ai: 抓 AI 候選股
-    # --all: 抓全部 (4 主監控 + 18 AI 候選)
-    # 否則只抓主監控
-    if "--all" in sys.argv:
-        watchlist = {**WATCHLIST, **AI_WATCHLIST}
-        sys.argv.remove("--all")
-    elif "--ai" in sys.argv:
-        watchlist = AI_WATCHLIST
-        sys.argv.remove("--ai")
-    else:
-        watchlist = WATCHLIST
-
+    # (預設) 抓全部 WATCHLIST (8 支)
+    # [codes...] 指定特定股票
     if len(sys.argv) > 1:
         custom_codes = sys.argv[1:]
         pairs = []
         for code in custom_codes:
             code = code.strip()
-            if code in watchlist:
-                ex, name, market = watchlist[code]
+            if code in WATCHLIST:
+                ex, name, market = WATCHLIST[code]
                 pairs.append((code, (ex, name, market)))
             else:
                 # 預設上市
                 pairs.append((code, ("tse", "?", "?")))
     else:
-        pairs = [(code, info) for code, info in watchlist.items()]
+        pairs = get_pairs()
 
     print(f"📊 Quinn 收盤價記錄器")
     print(f"   監控標的: {len(pairs)} 支")
