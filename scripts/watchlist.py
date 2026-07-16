@@ -17,6 +17,10 @@ WATCHLIST = {
     "6412": ("tse", "群電", "上市"),
     "2241": ("tse", "艾姆勒", "上市"),
     "4977": ("tse", "眾達-KY", "上市"),
+    # === 老大 2026-07-16 接受 3 支 (Quinn 主動提案評分最高) ===
+    "6472": ("tse", "保瑞", "上市"),       # CDMO/學名藥 (評分 82)
+    "4540": ("tse", "旭隼", "上市"),       # AI 電源 UPS (評分 78)
+    "6515": ("tse", "穎崴", "上市"),       # AI 探針 (評分 77)
 }
 
 # 進場區間 (從 reports/ 的「交易決策框架」擷取)
@@ -30,6 +34,11 @@ BUY_ZONES = {
     "6412": {"name": "群電",     "buy_min": 75.0,  "buy_max": 100.0, "target": 100.0, "stop": None,  "rating": "Buy (存股)"},
     "2241": {"name": "艾姆勒",   "buy_min": 42.0,  "buy_max": 70.0,  "target": 85.0,  "stop": 42.0,  "rating": "Buy 爆發型"},
     "4977": {"name": "眾達-KY",  "buy_min": 120.0, "buy_max": 200.0, "target": 220.0, "stop": 120.0, "rating": "Buy 核心持股"},
+    # 老大 2026-07-16 新接受 3 支 (Quinn 主動提案最高分)
+    # ⚠️ 待補完整研究報告 — 暫設保守 Buy Zone (待 reports/*.md 完成後由 Quinn 更新)
+    "6472": {"name": "保瑞",     "buy_min": 700.0, "buy_max": 900.0, "target": 1000.0, "stop": 650.0, "rating": "Buy (待研究)"},
+    "4540": {"name": "旭隼",     "buy_min": 200.0, "buy_max": 280.0, "target": 320.0, "stop": 190.0, "rating": "Buy (待研究)"},
+    "6515": {"name": "穎崴",     "buy_min": 350.0, "buy_max": 500.0, "target": 580.0, "stop": 330.0, "rating": "Buy (待研究)"},
 }
 
 
@@ -88,29 +97,33 @@ SCAN_WATCHLIST = {
 }
 
 # 觀察池狀態 (Quinn 追蹤用)
+# 2026-07-16 更新：老大已接受 3 支 (6472/4540/6515) 進主清單
 SCAN_STATUS = {
-    "6515": "WATCH",          # 已達進場邊緣
-    "4540": "WATCH",          # 已達進場邊緣
-    "6472": "WATCH",          # 已達進場邊緣
-    "2891": "WATCH",          # 已達進場邊緣
-    "4123": "WATCH",          # 已達進場邊緣
-    "6446": "EVALUATING",     # 評估中
-    "4147": "EVALUATING",     # 評估中
-    "3131": "EVALUATING",
-    "3583": "EVALUATING",
-    "6187": "EVALUATING",
-    "5309": "NEW",
-    "6224": "NEW",
-    "2884": "EVALUATING",
-    "2885": "EVALUATING",
-    "2882": "EVALUATING",
-    "2603": "EVALUATING",
-    "2609": "EVALUATING",
-    "1301": "EVALUATING",
-    "1303": "EVALUATING",
-    "0050": "NEW",
-    "0056": "NEW",
-    "00878": "NEW",
+    # === 已轉主清單 (老大 2026-07-16 接受) ===
+    "6472": "ARCHIVED_TRANSFERRED",  # → 主清單
+    "4540": "ARCHIVED_TRANSFERRED",  # → 主清單
+    "6515": "ARCHIVED_TRANSFERRED",  # → 主清單
+    # === 下週持續分析觀察 (老大 2026-07-16 指示) ===
+    "6446": "WATCH",     # 藥華藥 — 下週再評估是否加入
+    "2891": "WATCH",     # 中信金 — 下週再評估是否加入
+    # === 繼續 EVALUATING ===
+    "4147": "EVALUATING",  # 中裕
+    "4123": "WATCH",       # 晟德
+    "3131": "EVALUATING",  # 弘塑
+    "3583": "EVALUATING",  # 辛耘
+    "6187": "EVALUATING",  # 萬潤
+    "5309": "NEW",         # 系統電
+    "6224": "NEW",         # 聚鼎
+    "2884": "EVALUATING",  # 玉山金
+    "2885": "EVALUATING",  # 元大金
+    "2882": "EVALUATING",  # 國泰金
+    "2603": "EVALUATING",  # 長榮
+    "2609": "EVALUATING",  # 陽明
+    "1301": "EVALUATING",  # 台塑
+    "1303": "EVALUATING",  # 南亞
+    "0050": "NEW",         # ETF 大盤
+    "0056": "NEW",         # ETF 高股息
+    "00878": "NEW",        # ETF 高股息
 }
 
 
