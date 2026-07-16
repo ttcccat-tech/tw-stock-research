@@ -5,9 +5,9 @@
 # 格式: "ticker": ("exchange", "name", "market")
 #   - exchange: "tse" 上市 / "otc" 上櫃
 #   - market: 顯示用
-
 WATCHLIST = {
-    # === 主監控 (Quinn 精選 4 支) ===
+    # ticker: (exchange, name, market)
+    # === 主監控 (原 4 支) ===
     "2753": ("tse", "八方雲集", "上市"),
     "1734": ("tse", "杏輝", "上市"),
     "6509": ("otc", "聚和國際", "上櫃"),
@@ -17,28 +17,27 @@ WATCHLIST = {
     "6412": ("tse", "群電", "上市"),
     "2241": ("tse", "艾姆勒", "上市"),
     "4977": ("tse", "眾達-KY", "上市"),
-    # === 老大 2026-07-16 接受 3 支 (Quinn 主動提案評分最高) ===
-    "6472": ("tse", "保瑞", "上市"),       # CDMO/學名藥 (評分 82)
-    "4540": ("tse", "旭隼", "上市"),       # AI 電源 UPS (評分 78)
-    "6515": ("tse", "穎崴", "上市"),       # AI 探針 (評分 77)
+    # === 老大 2026-07-16 新加入的 3 支 ===
+    "6472": ("tse", "保瑞", "上市"),
+    "6409": ("tse", "旭隼", "上市"),  # ⚠️ 修正：原誤寫 4540
+    "6515": ("tse", "穎崴", "上市"),
 }
 
-# 進場區間 (從 reports/ 的「交易決策框架」擷取)
-# 格式: ticker -> {buy_min, buy_max, target, stop, rating, name}
+# 進場區間 (從各 reports/*.md 的「交易決策框架」擷取)
+# 格式: ticker -> {'buy_min': 積極進場下緣, 'buy_max': 保守進場上緣, 'target': 目標價, 'stop': 停損價, 'rating': 評等}
 BUY_ZONES = {
-    "2753": {"name": "八方雲集", "buy_min": 145.0, "buy_max": 200.0, "target": 235.0, "stop": 150.0, "rating": "Hold"},
-    "1734": {"name": "杏輝",     "buy_min": 27.0,  "buy_max": 36.0,  "target": 40.0,  "stop": 27.0,  "rating": "Buy"},
-    "6509": {"name": "聚和國際", "buy_min": 45.0,  "buy_max": 55.0,  "target": 55.0,  "stop": 42.0,  "rating": "Buy"},
-    "2834": {"name": "臺企銀",   "buy_min": 14.0,  "buy_max": 17.5, "target": 19.0,  "stop": None,  "rating": "Buy (存股)"},
-    "3479": {"name": "安勤",     "buy_min": 115.0, "buy_max": 160.0, "target": 165.0, "stop": 115.0, "rating": "Watch"},
-    "6412": {"name": "群電",     "buy_min": 75.0,  "buy_max": 100.0, "target": 100.0, "stop": None,  "rating": "Buy (存股)"},
-    "2241": {"name": "艾姆勒",   "buy_min": 42.0,  "buy_max": 70.0,  "target": 85.0,  "stop": 42.0,  "rating": "Buy 爆發型"},
-    "4977": {"name": "眾達-KY",  "buy_min": 120.0, "buy_max": 200.0, "target": 220.0, "stop": 120.0, "rating": "Buy 核心持股"},
-    # 老大 2026-07-16 新接受 3 支 (Quinn 主動提案最高分)
-    # ⚠️ 待補完整研究報告 — 暫設保守 Buy Zone (待 reports/*.md 完成後由 Quinn 更新)
-    "6472": {"name": "保瑞",     "buy_min": 700.0, "buy_max": 900.0, "target": 1000.0, "stop": 650.0, "rating": "Buy (待研究)"},
-    "4540": {"name": "旭隼",     "buy_min": 200.0, "buy_max": 280.0, "target": 320.0, "stop": 190.0, "rating": "Buy (待研究)"},
-    "6515": {"name": "穎崴",     "buy_min": 350.0, "buy_max": 500.0, "target": 580.0, "stop": 330.0, "rating": "Buy (待研究)"},
+    "2753": {"buy_min": 145.0, "buy_max": 200.0, "target": 235.0, "stop": 150.0, "rating": "Hold"},
+    "1734": {"buy_min": 27.0, "buy_max": 36.0, "target": 40.0, "stop": 27.0, "rating": "Buy"},
+    "6509": {"buy_min": 45.0, "buy_max": 55.0, "target": 55.0, "stop": 42.0, "rating": "Buy"},
+    "2834": {"buy_min": 14.0, "buy_max": 17.5, "target": 19.0, "stop": None, "rating": "Buy (存股)"},
+    "3479": {"buy_min": 115.0, "buy_max": 160.0, "target": 165.0, "stop": 115.0, "rating": "Watch"},
+    "6412": {"buy_min": 75.0, "buy_max": 100.0, "target": 100.0, "stop": None, "rating": "Buy (存股)"},
+    "2241": {"buy_min": 42.0, "buy_max": 70.0, "target": 85.0, "stop": 42.0, "rating": "Buy 爆發型"},
+    "4977": {"buy_min": 120.0, "buy_max": 200.0, "target": 220.0, "stop": 120.0, "rating": "Buy 核心持股"},
+    # === 新加入 3 支 (Quinn 校正後) ===
+    "6472": {"buy_min": 380.0, "buy_max": 470.0, "target": 580.0, "stop": 365.0, "rating": "Buy"},   # 保瑞
+    "6409": {"buy_min": 950.0, "buy_max": 1100.0, "target": 1400.0, "stop": 900.0, "rating": "Buy"}, # 旭隼 (千金股)
+    "6515": {"buy_min": 5500.0, "buy_max": 7500.0, "target": 9000.0, "stop": 5200.0, "rating": "Buy 核心持股"},  # 穎崴 (千金股)
 }
 
 
@@ -68,15 +67,15 @@ def get_zone(code):
 
 SCAN_WATCHLIST = {
     # === 半導體/AI 設備次族群 ===
-    "6515": {"exchange": "tse", "name": "穎崴",   "market": "上市", "theme": "AI 測試介面", "added_at": "2026-07-16", "note": "AI 晶片 probe card 受惠輝達 Blackwell"},
-    "4540": {"exchange": "tse", "name": "旭隼",   "market": "上市", "theme": "AI 電源 (UPS)", "added_at": "2026-07-16", "note": "全球前三 AI 機房 UPS 廠"},
-    "3131": {"exchange": "tse", "name": "弘塑",   "market": "上市", "theme": "CoWoS 封測", "added_at": "2026-07-16", "note": "先進封裝設備"},
-    "3583": {"exchange": "tse", "name": "辛耘",   "market": "上市", "theme": "半導體設備", "added_at": "2026-07-16", "note": "晶圓濕製程設備"},
-    "6187": {"exchange": "tse", "name": "萬潤",   "market": "上市", "theme": "CoWoS 設備", "added_at": "2026-07-16", "note": "封測自動化設備"},
-    "5309": {"exchange": "tse", "name": "系統電", "market": "上市", "theme": "工業電腦", "added_at": "2026-07-16", "note": "IPC 次族群"},
-    "6224": {"exchange": "tse", "name": "聚鼎",   "market": "上市", "theme": "散熱元件", "added_at": "2026-07-16", "note": "高分子散熱"},
+    "6515": {"exchange": "tse", "name": "穎崴",   "market": "上市", "theme": "AI 測試介面", "added_at": "2026-07-16", "note": "AI 晶片 probe card 受惠輝達 Blackwell", "status": "ACCEPTED"},
+    "6409": {"exchange": "tse", "name": "旭隼",   "market": "上市", "theme": "AI 電源 (UPS)", "added_at": "2026-07-16", "note": "全球前三 AI 機房 UPS 廠，800V DC 合作", "status": "ACCEPTED"},
+    "3131": {"exchange": "tse", "name": "弘塑",   "market": "上市", "theme": "CoWoS 封測", "added_at": "2026-07-16", "note": "先進封裝設備", "status": "EVALUATING"},
+    "3583": {"exchange": "tse", "name": "辛耘",   "market": "上市", "theme": "半導體設備", "added_at": "2026-07-16", "note": "晶圓濕製程設備", "status": "EVALUATING"},
+    "6187": {"exchange": "tse", "name": "萬潤",   "market": "上市", "theme": "CoWoS 設備", "added_at": "2026-07-16", "note": "封測自動化設備", "status": "EVALUATING"},
+    "5309": {"exchange": "tse", "name": "系統電", "market": "上市", "theme": "工業電腦", "added_at": "2026-07-16", "note": "IPC 次族群", "status": "NEW"},
+    "6224": {"exchange": "tse", "name": "聚鼎",   "market": "上市", "theme": "散熱元件", "added_at": "2026-07-16", "note": "高分子散熱", "status": "NEW"},
     # === 生技/醫材 ===
-    "6472": {"exchange": "tse", "name": "保瑞",     "market": "上市", "theme": "CDMO/學名藥", "added_at": "2026-07-16", "note": "2024 收購 Upsher-Smith"},
+    "6472": {"exchange": "tse", "name": "保瑞",     "market": "上市", "theme": "CDMO/學名藥", "added_at": "2026-07-16", "note": "2024 收購 Upsher-Smith", "status": "ACCEPTED"},
     "6446": {"exchange": "tse", "name": "藥華藥",   "market": "上市", "theme": "新藥 (P1101)", "added_at": "2026-07-16", "note": "罕病藥、減肥藥海外授權"},
     "4147": {"exchange": "tse", "name": "中裕",     "market": "上市", "theme": "愛滋新藥", "added_at": "2026-07-16", "note": "Trogarzo 已上市"},
     "4123": {"exchange": "tse", "name": "晟德",     "market": "上市", "theme": "生技控股", "added_at": "2026-07-16", "note": "轉投資多家高潛力公司"},
