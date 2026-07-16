@@ -4,3 +4,7 @@
 *.tmp
 *.log# 自動產生的歷史資料 (cron 會持續更新，但不入版控)
 price-history/daily-prices.csv
+
+# Python 快取
+scripts/__pycache__/
+*.pyc
