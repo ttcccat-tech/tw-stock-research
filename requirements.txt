@@ -1,0 +1,3 @@
+# Quinn 投資分析師 — Python 依賴
+flask>=3.0
+flask-cors>=4.0

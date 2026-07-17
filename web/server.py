@@ -7,15 +7,17 @@ Quinn 投資監控 — Flask 後端 API + 靜態前端
 - 週報/月報歷史
 """
 
+import os
 import sqlite3
+import csv
 import json
 from pathlib import Path
 from datetime import datetime, timedelta
 from flask import Flask, jsonify, request, send_from_directory, abort
 
-REPO_DIR = Path("/var/repo/tw-stock-research")
+REPO_DIR = Path(os.environ.get("QUINN_REPO_DIR", "/app"))
 DB_PATH = REPO_DIR / "data" / "tw_stock.db"
-WEB_DIR = REPO_DIR / "web"
+WEB_DIR = Path(os.environ.get("QUINN_WEB_DIR", "/app/web"))
 
 app = Flask(__name__, static_folder=str(WEB_DIR / "static"), static_url_path="/static")
 

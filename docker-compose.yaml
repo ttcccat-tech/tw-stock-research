@@ -1,0 +1,49 @@
+# Quinn 投資分析師 — Docker Compose
+# 部署方式:
+#   docker-compose up -d       (啟動)
+#   docker-compose down        (停止)
+#   docker-compose logs -f     (查看 log)
+
+version: "3.8"
+
+services:
+  quinn-web:
+    build: .
+    image: quinn-tw-stock:latest
+    container_name: quinn-tw-stock
+    restart: unless-stopped
+    ports:
+      - "5050:5050"
+    volumes:
+      # 資料持久化 (容器重建資料不丟)
+      - ./data:/app/data                          # SQLite DB
+      - ./price-history:/app/price-history        # CSV 歷史
+      - ./reports:/app/reports                    # 週報/分析報告 MD
+      - ./logs:/app/logs                           # 執行 log
+    environment:
+      - TZ=Asia/Taipei
+      - PYTHONUNBUFFERED=1
+      - FLASK_ENV=production
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5050/api/summary"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # Cloudflare Tunnel (可選) — 對外訪問 + HTTPS
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: quinn-cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}    # 從 Cloudflare dashboard 取得
+    depends_on:
+      quinn-web:
+        condition: service_healthy
+    profiles: ["tunnel"]                           # 只在 --profile tunnel 啟動
+
+volumes:
+  data:
+  logs:

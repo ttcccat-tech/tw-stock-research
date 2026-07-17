@@ -1,0 +1,22 @@
+# Quinn cron 排程 (容器內)
+# 統一時區: Asia/Taipei
+
+# 環境變數
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PYTHONUNBUFFERED=1
+
+# 盤前 8:55 啟動盤中監控守護
+55 8 * * 1-5 cd /app && /usr/local/bin/python3 /app/scripts/intraday_monitor.py --daemon >> /app/logs/daemon.log 2>&1
+
+# 收盤後 13:30 抓收盤價
+30 13 * * 1-5 cd /app && /usr/local/bin/python3 /app/scripts/fetch_prices.py >> /app/logs/fetch.log 2>&1
+
+# 盤後分析 13:40
+40 13 * * 1-5 cd /app && /usr/local/bin/python3 /app/scripts/post_market_analysis.py >> /app/logs/postmarket.log 2>&1
+
+# 每日 DB 同步 14:00 (從 CSV 匯入新資料)
+0 14 * * 1-5 cd /app && /usr/local/bin/python3 /app/scripts/db_init.py >> /app/logs/db_init.log 2>&1
+
+# 週報週日 18:00 自動產生
+0 18 * * 0 cd /app && /usr/local/bin/python3 /app/scripts/weekly_report.py >> /app/logs/weekly.log 2>&1
