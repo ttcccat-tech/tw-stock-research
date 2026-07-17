@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quinn 投資監控 — 主清單</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <meta http-equiv="refresh" content="300">  <!-- 5 分鐘自動刷新 -->
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Quinn 投資監控</h1>
+            <nav>
+                <a href="/" class="active">主清單</a>
+                <a href="/reports">分析報告</a>
+                <button class="refresh-btn" onclick="location.reload()">🔄 刷新</button>
+            </nav>
+        </header>
+
+        <section id="summary" class="summary-cards">
+            <div class="loading">載入系統摘要中...</div>
+        </section>
+
+        <section class="table-container">
+            <div id="watchlist-table">
+                <div class="loading">載入監控清單中...</div>
+            </div>
+        </section>
+
+        <footer>
+            <div id="last-update" class="last-update"></div>
+            <div>🤖 由 Quinn 投資分析師自動驅動 · 資料來源: TWSE MIS / TPEx OpenAPI</div>
+            <div>本頁面為私有監控頁，請勿分享連結</div>
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

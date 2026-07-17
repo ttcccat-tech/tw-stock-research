@@ -187,6 +187,12 @@ def main():
         except (ValueError, TypeError):
             price_f = yclose_f = change = change_pct = 0
 
+        # 若無報價 (- / 0)，標記為 None 避免誤判
+        if price_f == 0:
+            price_f = None
+        if yclose_f == 0:
+            yclose_f = None
+
         vol = m.get("v", "0")
         # 上市用 TWSE BWIBBU，上櫃用 TPEx
         if ex == "tse":
@@ -196,20 +202,26 @@ def main():
         pe = bw.get("pe", "-")
         yld = bw.get("yield", "-")
 
-        print(f"{code:<6} {name:<10} {price_f:>8.2f} {yclose_f:>8.2f} {change:>+7.2f} {change_pct:>+6.2f}% {vol:>10} {str(pe):>6} {str(yld):>7}")
+        # 處理 None 顯示
+        p_str = f"{price_f:>8.2f}" if price_f is not None else "       -"
+        y_str = f"{yclose_f:>8.2f}" if yclose_f is not None else "       -"
+        c_str = f"{change:>+7.2f}" if change is not None else "     -"
+        cp_str = f"{change_pct:>+6.2f}%" if change_pct is not None else "    -%"
+
+        print(f"{code:<6} {name:<10} {p_str} {y_str} {c_str} {cp_str} {vol:>10} {str(pe):>6} {str(yld):>7}")
 
         rows.append({
             "date": today,
             "code": code,
             "name": name,
             "market": market,
-            "open": m.get("o", ""),
-            "high": m.get("h", ""),
-            "low": m.get("l", ""),
+            "open": m.get("o", "") if m.get("o") not in ("-", "") else None,
+            "high": m.get("h", "") if m.get("h") not in ("-", "") else None,
+            "low": m.get("l", "") if m.get("l") not in ("-", "") else None,
             "close": price_f,
             "yclose": yclose_f,
-            "change": round(change, 3),
-            "change_pct": round(change_pct, 3),
+            "change": round(change, 3) if change is not None else None,
+            "change_pct": round(change_pct, 3) if change_pct is not None else None,
             "volume_lots": vol,
             "pe": pe,
             "yield_pct": yld,
