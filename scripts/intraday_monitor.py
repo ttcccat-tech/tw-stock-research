@@ -47,9 +47,9 @@ TPEX_PERATIO = "https://www.tpex.org.tw/v1/stock/earning_yield_ratio"
 # ========== 進場區間 (從 watchlist.py 統一載入) ==========
 # 來源：reports/*.md 報告中的「交易決策框架」段落
 
-# ========== 觸發規則 ==========
+# 觸發規則
 def should_alert(code, current_price, prev_alert_price=None):
-    """判斷是否該通知"""
+    """判定當前價格是否觸發任何訊號"""
     zone = BUY_ZONES.get(code)
     if not zone:
         return None
@@ -60,6 +60,13 @@ def should_alert(code, current_price, prev_alert_price=None):
     stop = zone["stop"]
     rating = zone["rating"]
 
+    # 規則 0: 6509 聚和專屬 — 月營收警訊未解前不建議加碼
+    if code == "6509" and current_price and 42 <= current_price <= 52:
+        return {
+            "type": "⚠️ 6509 月營收警訊",
+            "msg": f"2025/11 (-21%) + 2026/05 (-5%) 雙重月營收年減，2026/6 月營收未恢復年增前不建議加碼"
+        }
+
     # 規則 1: 進入「積極進場區」 (buy_min ~ buy_min + 10%)
     aggressive_zone = buy_min + (buy_max - buy_min) * 0.3  # 前 30% 為積極區
     if buy_min <= current_price <= aggressive_zone:
@@ -67,21 +74,21 @@ def should_alert(code, current_price, prev_alert_price=None):
             "type": "🟢 積極進場訊號",
             "msg": f"{rating} | 距目標價 {((target - current_price) / current_price * 100):+.1f}%"
         }
-    # 規則 2: 觸及停損價
-    if stop and current_price <= stop:
+
+    # 規則 2: 觸及停損
+    if stop is not None and current_price <= stop:
         return {
             "type": "🚨 觸及停損價",
             "msg": f"停損價 {stop} | 重新檢視投資邏輯"
         }
-    # 規則 3: 突破前高/突破區間
-    if prev_alert_price and prev_alert_price < buy_max * 0.95 and current_price >= buy_max * 0.95:
+
+    # 規則 3: 接近目標 (距目標價 < 10%)
+    if target and current_price >= target * 0.9:
         return {
-            "type": "📈 突破區間上緣",
-            "msg": f"逼近買入區上緣 {buy_max} | 可能進入保守進場區"
+            "type": "🎯 接近目標價",
+            "msg": f"目標價 {target} | 評估是否獲利了結"
         }
-    # 規則 4: 距目標價剩 10% (可能觸發獲利了結)
-    if target and current_price >= target * 0.9 and prev_alert_price and prev_alert_price < target * 0.9:
-        return {
+    return None
             "type": "🎯 接近目標價",
             "msg": f"目標價 {target} | 評估是否獲利了結"
         }
