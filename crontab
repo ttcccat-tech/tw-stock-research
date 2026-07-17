@@ -1,22 +1,35 @@
 # Quinn cron 排程 (容器內)
 # 統一時區: Asia/Taipei
+# ⚠️ 重要：cron 只負責「純資料抓取」，不呼叫 LLM
+# 分析報告由 Quinn 主動觸發 (在小c session 中即時生成)
 
 # 環境變數
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 PYTHONUNBUFFERED=1
 
-# 盤前 8:55 啟動盤中監控守護
+# ==================== 純資料抓取 (可保留 cron) ====================
+
+# 盤前 8:55 啟動盤中監控守護 (純 cron)
 55 8 * * 1-5 cd /app && /usr/local/bin/python3 /app/scripts/intraday_monitor.py --daemon >> /app/logs/daemon.log 2>&1
 
-# 收盤後 13:30 抓收盤價
+# 收盤後 13:30 抓收盤價 (純資料抓取)
 30 13 * * 1-5 cd /app && /usr/local/bin/python3 /app/scripts/fetch_prices.py >> /app/logs/fetch.log 2>&1
-
-# 盤後分析 13:40
-40 13 * * 1-5 cd /app && /usr/local/bin/python3 /app/scripts/post_market_analysis.py >> /app/logs/postmarket.log 2>&1
 
 # 每日 DB 同步 14:00 (從 CSV 匯入新資料)
 0 14 * * 1-5 cd /app && /usr/local/bin/python3 /app/scripts/db_init.py >> /app/logs/db_init.log 2>&1
 
-# 週報週日 18:00 自動產生
-0 18 * * 0 cd /app && /usr/local/bin/python3 /app/scripts/weekly_report.py >> /app/logs/weekly.log 2>&1
+# 觸發訊號記錄 (intraday_monitor 已整合，無需額外 cron)
+
+# ==================== 註解：分析報告 ====================
+# ❌ 不再由 cron 自動產生「盤後分析」與「週報」
+# 改由 Quinn (小c session 中的 LLM) 主動觸發：
+#   - 盤後分析: 老大下次開啟對話時，Quinn 自動判斷是否收盤
+#                  並主動回報完整分析
+#   - 週報: 週日由 Quinn 主動召開「選股會議」
+#
+# 優點:
+#   - 分析有靈魂 (LLM 整合上下文)
+#   - 風格一致 (Quinn 統一口吻)
+#   - 老大可即時追問 (不是死指令)
+#   - 學習偏好 (LLM 根據老大歷史互動調整)
