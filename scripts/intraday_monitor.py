@@ -89,10 +89,6 @@ def should_alert(code, current_price, prev_alert_price=None):
             "msg": f"目標價 {target} | 評估是否獲利了結"
         }
     return None
-            "type": "🎯 接近目標價",
-            "msg": f"目標價 {target} | 評估是否獲利了結"
-        }
-    return None
 
 
 # ========== API ==========

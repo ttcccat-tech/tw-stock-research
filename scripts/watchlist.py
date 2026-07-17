@@ -28,7 +28,7 @@ WATCHLIST = {
 BUY_ZONES = {
     "2753": {"buy_min": 145.0, "buy_max": 200.0, "target": 235.0, "stop": 150.0, "rating": "Hold"},
     "1734": {"buy_min": 27.0, "buy_max": 36.0, "target": 40.0, "stop": 27.0, "rating": "Buy"},
-    "6509": {"buy_min": 45.0, "buy_max": 55.0, "target": 55.0, "stop": 42.0, "rating": "Buy"},
+    "6509": {"buy_min": 42.0, "buy_max": 50.0, "target": 55.0, "stop": 40.0, "rating": "Buy"},   # 聚和 (下修, 2026/7 因月營收警訊)
     "2834": {"buy_min": 14.0, "buy_max": 17.5, "target": 19.0, "stop": None, "rating": "Buy (存股)"},
     "3479": {"buy_min": 115.0, "buy_max": 160.0, "target": 165.0, "stop": 115.0, "rating": "Watch"},
     "6412": {"buy_min": 75.0, "buy_max": 100.0, "target": 100.0, "stop": None, "rating": "Buy (存股)"},
