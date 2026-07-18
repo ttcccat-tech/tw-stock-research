@@ -149,7 +149,7 @@ def main():
     else:
         pairs = get_pairs()
 
-    print(f"📊 Quinn 收盤價記錄器")
+    print(f"📊 Quinn 收盤價記錄器 (機械抓取 — 純資料, 無分析)")
     print(f"   監控標的: {len(pairs)} 支")
     print(f"   當下時間: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"   市場狀態: {get_market_status()}")
