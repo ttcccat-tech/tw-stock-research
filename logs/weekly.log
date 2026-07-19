@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/app/scripts/weekly_report.py", line 182, in <module>
+    generate_weekly_report()
+  File "/app/scripts/weekly_report.py", line 68, in generate_weekly_report
+    latest_date, prices = get_latest_prices()
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/app/scripts/weekly_report.py", line 27, in get_latest_prices
+    latest_date = cur.fetchone()[0]
+                  ~~~~~~~~~~~~~~^^^
+TypeError: 'NoneType' object is not subscriptable

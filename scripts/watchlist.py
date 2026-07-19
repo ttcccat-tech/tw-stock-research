@@ -102,15 +102,16 @@ SCAN_STATUS = {
     "6472": "ARCHIVED_TRANSFERRED",  # → 主清單
     "4540": "ARCHIVED_TRANSFERRED",  # → 主清單
     "6515": "ARCHIVED_TRANSFERRED",  # → 主清單
-    # === 下週持續分析觀察 (老大 2026-07-16 指示) ===
-    "6446": "WATCH",     # 藥華藥 — 下週再評估是否加入
-    "2891": "WATCH",     # 中信金 — 下週再評估是否加入
+    # === 達標待 8/1 月度提案 (2026-07-19 週報評估) ===
+    "6446": "RECOMMEND_ADD",     # 藥華藥 - 評分 80, 達標
+    "3131": "RECOMMEND_ADD",     # 弘塑 - 評分 78, 達標
+    "3583": "RECOMMEND_ADD",     # 辛耘 - 評分 76, 達標
+    "6187": "RECOMMEND_ADD",     # 萬潤 - 評分 75, 達標
+    "2891": "RECOMMEND_ADD",     # 中信金 - 評分 76, 達標
+    # === 持續 WATCH ===
+    "4123": "WATCH",       # 晟德
     # === 繼續 EVALUATING ===
     "4147": "EVALUATING",  # 中裕
-    "4123": "WATCH",       # 晟德
-    "3131": "EVALUATING",  # 弘塑
-    "3583": "EVALUATING",  # 辛耘
-    "6187": "EVALUATING",  # 萬潤
     "5309": "NEW",         # 系統電
     "6224": "NEW",         # 聚鼎
     "2884": "EVALUATING",  # 玉山金
