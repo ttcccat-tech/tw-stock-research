@@ -27,6 +27,9 @@ function renderWatchlist(rows) {
                     <th>評等</th>
                     <th>現價</th>
                     <th>漲跌</th>
+                    <th>庫存</th>
+                    <th>平均成本</th>
+                    <th>損益%</th>
                     <th>Buy Zone</th>
                     <th>距目標</th>
                     <th>距停損</th>
@@ -59,6 +62,20 @@ function renderRow(r) {
         ? `<span class="stop-warn">${r.downside_to_stop_pct}%</span>`
         : '–';
 
+    // === 庫存欄位渲染 ===
+    const hasHolding = r.holdings_shares && r.holdings_shares > 0;
+    const sharesStr = hasHolding ? r.holdings_shares.toLocaleString() : '–';
+    const costStr = hasHolding ? r.holdings_avg_cost.toFixed(2) : '–';
+
+    let pnlStr = '–';
+    let pnlClass = '';
+    if (hasHolding && r.holdings_unrealized_pct != null) {
+        const pct = r.holdings_unrealized_pct;
+        pnlStr = `${pct > 0 ? '+' : ''}${pct}%`;
+        if (pct >= 0) pnlClass = 'up';
+        else pnlClass = 'down';
+    }
+
     return `
         <tr>
             <td><span class="ticker">${r.ticker}</span></td>
@@ -66,6 +83,9 @@ function renderRow(r) {
             <td><span class="badge ${ratingClass}">${r.rating || '–'}</span></td>
             <td><span class="price ${priceClass}">${r.close ? r.close.toFixed(2) : '–'}</span></td>
             <td class="${priceClass}">${changePct}</td>
+            <td class="${hasHolding ? 'holding-yes' : 'holding-no'}">${sharesStr}</td>
+            <td>${costStr}</td>
+            <td class="${pnlClass}">${pnlStr}</td>
             <td class="buy-zone">${r.buy_min}–${r.buy_max}</td>
             <td>${upsideStr}</td>
             <td>${stopStr}</td>

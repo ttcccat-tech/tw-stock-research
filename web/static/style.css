@@ -142,6 +142,17 @@ tbody tr:hover {
 .target-up { color: #10b981; font-weight: 600; }
 .stop-warn { color: #ef4444; font-weight: 600; }
 
+.holding-yes {
+    background: rgba(168, 85, 247, 0.15);
+    color: #c084fc;
+    font-weight: 700;
+    text-align: center;
+}
+.holding-no {
+    color: #475569;
+    text-align: center;
+}
+
 .action-cell {
     font-weight: 700;
     font-size: 12px;
