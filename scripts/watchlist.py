@@ -13,7 +13,7 @@ WATCHLIST = {
     "6509": ("otc", "聚和國際", "上櫃"),
     "2834": ("tse", "臺企銀", "上市"),
     # === AI 候選 (Quinn 親選 4 支) ===
-    "3479": ("tse", "安勤", "上市"),
+    "3479": ("otc", "安勤", "上櫃"),
     "6412": ("tse", "群電", "上市"),
     "2241": ("tse", "艾姆勒", "上市"),
     "4977": ("tse", "眾達-KY", "上市"),
@@ -28,11 +28,11 @@ WATCHLIST = {
 BUY_ZONES = {
     "2753": {"buy_min": 145.0, "buy_max": 200.0, "target": 235.0, "stop": 150.0, "rating": "Hold"},
     "1734": {"buy_min": 30.0, "buy_max": 34.0, "target": 40.0, "stop": 28.0, "rating": "Buy"},   # 杏輝 (下修, 杏國拖累)
-    "6509": {"buy_min": 42.0, "buy_max": 50.0, "target": 55.0, "stop": 40.0, "rating": "Buy"},   # 聚和 (下修, 2026/7 因月營收警訊)
+    "6509": {"buy_min": 45.0, "buy_max": 55.0, "target": 60.0, "stop": 42.0, "rating": "Buy"},   # 聚和 (上修, 2026/06 月營收年增 +8.49% 已轉正)
     "2834": {"buy_min": 14.0, "buy_max": 17.5, "target": 19.0, "stop": None, "rating": "Buy (存股)"},
     "3479": {"buy_min": 115.0, "buy_max": 160.0, "target": 165.0, "stop": 115.0, "rating": "Watch"},
     "6412": {"buy_min": 75.0, "buy_max": 100.0, "target": 100.0, "stop": None, "rating": "Buy (存股)"},
-    "2241": {"buy_min": 42.0, "buy_max": 70.0, "target": 85.0, "stop": 42.0, "rating": "Buy 爆發型"},
+    "2241": {"buy_min": 34.0, "buy_max": 45.0, "target": 85.0, "stop": 34.0, "rating": "Buy 爆發型 (恐慌低接修正)"},  # 艾姆勒 — 2026-07-21 跌至 35.65，Buy Zone 下修至 34-45，停損同步下修
     "4977": {"buy_min": 120.0, "buy_max": 200.0, "target": 220.0, "stop": 120.0, "rating": "Buy 核心持股"},
     # === 新加入 3 支 (Quinn 校正後) ===
     "6472": {"buy_min": 380.0, "buy_max": 470.0, "target": 580.0, "stop": 365.0, "rating": "Buy"},   # 保瑞

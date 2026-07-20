@@ -78,6 +78,29 @@ def fetch_quote(pairs):
     return out
 
 
+def _positive_number(value):
+    """將 MIS 欄位正規化為正數；'-'、空值、0 均視為無效。"""
+    try:
+        number = float(value)
+        return number if number > 0 else None
+    except (TypeError, ValueError):
+        return None
+
+
+def normalized_price(message):
+    """優先取最新成交；無成交時取最佳買一估算，避免虛構 -100%。"""
+    last = _positive_number(message.get("z"))
+    if last is not None:
+        return last, "last"
+    best_bid = _positive_number((message.get("b") or "").split("_")[0])
+    if best_bid is not None:
+        return best_bid, "best_bid_estimate"
+    indicative = _positive_number(message.get("o")) or _positive_number(message.get("l"))
+    if indicative is not None:
+        return indicative, "indicative_ohlc"
+    return None, "unavailable"
+
+
 def fetch_bwibbu():
     """抓上市股殖利率 / 本益比 / 股價淨值比"""
     try:
@@ -168,6 +191,7 @@ def main():
     # 整理資料
     today = date.today().isoformat()
     rows = []
+    fallback_codes = []
     print(f"{'代碼':<6} {'名稱':<10} {'成交':>8} {'昨收':>8} {'漲跌':>7} {'漲跌幅':>7} {'成交量':>10} {'PE':>6} {'殖利率':>7}")
     print("-" * 85)
 
@@ -177,21 +201,16 @@ def main():
             print(f"{code} {name}: 無報價資料")
             continue
 
-        price = m.get("z") or m.get("b") or "0"  # 成交價 / 買價
-        yclose = m.get("y", "0")
-        try:
-            price_f = float(price) if price not in ("-", "", None) else 0
-            yclose_f = float(yclose) if yclose not in ("-", "", None) else 0
+        price_f, quote_source = normalized_price(m)
+        yclose_f = _positive_number(m.get("y"))
+        if quote_source != "last":
+            fallback_codes.append((code, quote_source))
+        if price_f is not None and yclose_f is not None:
             change = price_f - yclose_f
-            change_pct = (change / yclose_f * 100) if yclose_f else 0
-        except (ValueError, TypeError):
-            price_f = yclose_f = change = change_pct = 0
-
-        # 若無報價 (- / 0)，標記為 None 避免誤判
-        if price_f == 0:
-            price_f = None
-        if yclose_f == 0:
-            yclose_f = None
+            change_pct = change / yclose_f * 100
+        else:
+            change = None
+            change_pct = None
 
         vol = m.get("v", "0")
         # 上市用 TWSE BWIBBU，上櫃用 TPEx
@@ -236,7 +255,37 @@ def main():
             writer.writeheader()
         writer.writerows(rows)
 
+    # 同步寫入 SQLite (給 web 顯示用)
+    try:
+        import sqlite3
+        db_path = REPO_DIR / "data" / "tw_stock.db"
+        conn = sqlite3.connect(db_path)
+        cur = conn.cursor()
+        for r in rows:
+            # 用 INSERT OR REPLACE 避免重複
+            cur.execute("""
+                INSERT OR REPLACE INTO price_history
+                (date, ticker, name, market, open, high, low, close, yclose, change, change_pct, volume_lots, pe, yield_pct, source)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                r["date"], r["code"], r["name"], r["market"],
+                r["open"], r["high"], r["low"],
+                r["close"], r["yclose"],
+                r["change"], r["change_pct"],
+                r["volume_lots"], r["pe"], r["yield_pct"],
+                "fetch_prices.py"
+            ))
+        conn.commit()
+        conn.close()
+        print(f"✅ SQLite 同步寫入: {db_path}")
+    except Exception as e:
+        print(f"⚠️ SQLite 寫入失敗 (CSV 仍可用): {e}")
+
     print()
+    if fallback_codes:
+        details = ", ".join(f"{code}:{source}" for code, source in fallback_codes)
+        print(f"⚠️ z 無最新成交者採最佳買一／OHLC 估算：{details}")
+        print("   執行以券商即時成交為準；無有效價格者不計算漲跌幅。")
     print(f"✅ 歷史記錄已寫入: {csv_file}")
     print(f"   總筆數: {sum(1 for _ in csv_file.open())} (含表頭)")
 

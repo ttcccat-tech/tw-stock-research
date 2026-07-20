@@ -39,10 +39,12 @@ def api_watchlist():
         SELECT w.ticker, w.name, w.exchange, w.market, w.theme, w.rating,
                w.buy_min, w.buy_max, w.target, w.stop,
                p.close, p.yclose, p.change_pct, p.pe, p.yield_pct,
-               p.date as price_date
+               p.date as price_date,
+               h.shares as holdings_shares, h.avg_cost as holdings_avg_cost
         FROM watchlist w
         LEFT JOIN price_history p ON p.ticker = w.ticker
             AND p.date = (SELECT MAX(date) FROM price_history WHERE ticker = w.ticker)
+        LEFT JOIN holdings h ON h.ticker = w.ticker
         WHERE w.in_main_list = 1
         ORDER BY w.ticker
     """)
@@ -57,11 +59,32 @@ def api_watchlist():
         buy_max = r.get("buy_max")
         target = r.get("target")
         stop = r.get("stop")
+        shares = r.get("holdings_shares") or 0
+        avg_cost = r.get("holdings_avg_cost")
 
         action = "📊 無報價"
         action_code = "NO_DATA"
         if close:
-            if stop and close <= stop:
+            # 有庫存時,優先以庫存成本/損益判斷
+            if shares > 0 and avg_cost:
+                pnl_pct = (close - avg_cost) / avg_cost * 100
+                pnl_amount = (close - avg_cost) * shares
+                if pnl_pct >= 50:
+                    action = f"💰 大賺 +{pnl_pct:.1f}% (可考慮減碼)"
+                    action_code = "BIG_PROFIT"
+                elif pnl_pct >= 20:
+                    action = f"📈 獲利 +{pnl_pct:.1f}%"
+                    action_code = "PROFIT"
+                elif pnl_pct >= -5:
+                    action = f"🟰 小虧損 {pnl_pct:.1f}%"
+                    action_code = "SMALL_LOSS"
+                elif pnl_pct >= -15:
+                    action = f"⚠️ 虧損 {pnl_pct:.1f}% (考慮加碼攤平)"
+                    action_code = "LOSS"
+                else:
+                    action = f"🚨 重虧 {pnl_pct:.1f}% (檢視停損)"
+                    action_code = "BIG_LOSS"
+            elif stop and close <= stop:
                 action = f"🚨 觸及停損 ({stop})"
                 action_code = "STOP_HIT"
             elif buy_min and close <= buy_min * 1.1:
@@ -82,6 +105,17 @@ def api_watchlist():
         r["action"] = action
         r["action_code"] = action_code
 
+        # === 庫存分析 (損益計算) ===
+        if shares > 0 and avg_cost and close:
+            r["holdings_shares"] = shares
+            r["holdings_avg_cost"] = avg_cost
+            r["holdings_cost_basis"] = round(shares * avg_cost, 0)
+            r["holdings_market_value"] = round(shares * close, 0)
+            r["holdings_unrealized_pnl"] = round((close - avg_cost) * shares, 0)
+            r["holdings_unrealized_pct"] = round((close - avg_cost) / avg_cost * 100, 2)
+            # 距離損益兩平%
+            r["holdings_to_breakeven_pct"] = round((avg_cost - close) / close * 100, 2) if close > 0 else None
+
         # 計算距離
         if close and target:
             r["upside_to_target_pct"] = round((target - close) / close * 100, 2)
@@ -93,6 +127,44 @@ def api_watchlist():
         results.append(r)
     conn.close()
     return jsonify({"count": len(results), "data": results})
+
+
+@app.route("/api/holdings")
+def api_holdings():
+    """庫存管理 — 老大實際持倉+未實現損益"""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT h.ticker, h.name, h.shares, h.avg_cost, h.cost_basis,
+               h.first_buy_date, h.note,
+               p.close, p.change_pct,
+               ROUND((p.close - h.avg_cost) / h.avg_cost * 100, 2) as unrealized_pct,
+               ROUND((p.close - h.avg_cost) * h.shares, 0) as unrealized_pnl,
+               ROUND(h.shares * p.close, 0) as market_value
+        FROM holdings h
+        LEFT JOIN price_history p ON p.ticker = h.ticker
+            AND p.date = (SELECT MAX(date) FROM price_history WHERE ticker = h.ticker)
+        ORDER BY h.shares * p.close DESC
+    """)
+    rows = [dict(r) for r in cur.fetchall()]
+
+    # 總計
+    total_cost = sum(r.get("cost_basis") or 0 for r in rows)
+    total_value = sum(r.get("market_value") or 0 for r in rows)
+    total_pnl = total_value - total_cost
+    total_pct = (total_pnl / total_cost * 100) if total_cost > 0 else 0
+
+    conn.close()
+    return jsonify({
+        "count": len(rows),
+        "summary": {
+            "total_cost_basis": round(total_cost, 0),
+            "total_market_value": round(total_value, 0),
+            "total_unrealized_pnl": round(total_pnl, 0),
+            "total_unrealized_pct": round(total_pct, 2)
+        },
+        "data": rows
+    })
 
 
 @app.route("/api/alerts")
