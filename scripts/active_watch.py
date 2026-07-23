@@ -81,6 +81,60 @@ def fetch_quote(pairs):
     return out
 
 
+def update_intraday_prices(quotes, pairs):
+    """將盤中即時報價寫入 DB (供前端顯示)
+    - 使用 today 日期
+    - 使用 REPLACE 確保同日只保留最新一筆
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cur = conn.cursor()
+        today = date.today().isoformat()
+        updated = 0
+        for code, (ex, name, market) in pairs:
+            m = quotes.get(code)
+            if not m:
+                continue
+            price = get_price(m)
+            if price is None:
+                continue
+
+            # 讀取前日收盤
+            cur.execute("""
+                SELECT close FROM price_history
+                WHERE ticker=? AND date < ?
+                ORDER BY date DESC LIMIT 1
+            """, (code, today))
+            row = cur.fetchone()
+            yclose = row[0] if row else None
+
+            change = (price - yclose) if yclose else None
+            change_pct = (change / yclose * 100) if (yclose and change is not None) else None
+
+            # 取得其他欄位
+            vol = m.get("v", 0)
+            try:
+                vol = int(vol)
+            except (ValueError, TypeError):
+                vol = 0
+
+            cur.execute("""
+                INSERT OR REPLACE INTO price_history
+                (date, ticker, name, market, close, yclose, change, change_pct, volume_lots, source)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (today, code, name, market, price, yclose,
+                  round(change, 2) if change is not None else None,
+                  round(change_pct, 2) if change_pct is not None else None,
+                  vol, 'active_watch_intraday'))
+            updated += 1
+        conn.commit()
+        conn.close()
+        return updated
+    except Exception as e:
+        print(f"[更新盤中報價失敗]: {e}")
+        return 0
+
+
 def get_price(m):
     """取得報價 (優先 z, 否則 b, 否則 o)"""
     for key in ["z", "b", "o"]:
@@ -277,6 +331,10 @@ def main():
     if not quotes:
         print("❌ 無報價資料")
         return 1
+
+    # ✅ 新增: 立即更新盤中報價到 DB (供前端即時顯示)
+    updated_count = update_intraday_prices(quotes, pairs)
+    print(f"   已更新 DB: {updated_count} 支現價")
 
     holdings = get_holdings()
     print(f"   庫存: {len(holdings)} 支有倉")
