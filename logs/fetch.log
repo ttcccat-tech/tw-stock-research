@@ -25,3 +25,33 @@ FileNotFoundError: [Errno 2] No such file or directory: '/var/repo/tw-stock-rese
 
 ✅ 歷史記錄已寫入: /var/repo/tw-stock-research/price-history/daily-prices.csv
    總筆數: 11 (含表頭)
+Traceback (most recent call last):
+  File "/app/scripts/fetch_prices.py", line 32, in <module>
+    HISTORY_DIR.mkdir(exist_ok=True)
+  File "/usr/local/lib/python3.11/pathlib.py", line 1116, in mkdir
+    os.mkdir(self, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/var/repo/tw-stock-research/price-history'
+📊 Quinn 收盤價記錄器 (機械抓取 — 純資料, 無分析)
+   監控標的: 11 支
+   當下時間: 2026-07-22 13:30:01
+   市場狀態: closed
+
+代碼     名稱               成交       昨收      漲跌     漲跌幅        成交量     PE     殖利率
+-------------------------------------------------------------------------------------
+2753   八方雲集         176.50   179.00   -2.50  -1.40%        160  13.29    6.70
+1734   杏輝            32.80    32.70   +0.10  +0.31%        707  19.01    4.89
+6509   聚和國際          47.95    48.00   -0.05  -0.10%        932  14.77    2.90
+2834   臺企銀           18.05    18.00   +0.05  +0.28%      33939  13.74    5.56
+3479   安勤           150.00   148.50   +1.50  +1.01%       7789  21.87    3.11
+6412   群電            82.20    81.70   +0.50  +0.61%        717  15.71    4.53
+2241   艾姆勒           35.05    35.20   -0.15  -0.43%        684               
+4977   眾達-KY        133.50   132.00   +1.50  +1.14%       1707  29.71    1.63
+6472   保瑞           423.00   401.00  +22.00  +5.49%        816  31.77    2.49
+6409   旭隼           997.00   989.00   +8.00  +0.81%        461  28.33    3.72
+6515   穎崴          6490.00  6655.00 -165.00  -2.48%        552 136.37    0.74
+✅ SQLite 同步寫入: /var/repo/tw-stock-research/data/tw_stock.db
+
+⚠️ z 無最新成交者採最佳買一／OHLC 估算：2753:best_bid_estimate, 1734:best_bid_estimate, 6509:best_bid_estimate, 2834:best_bid_estimate, 6412:best_bid_estimate, 2241:best_bid_estimate, 4977:best_bid_estimate, 6472:best_bid_estimate, 6409:best_bid_estimate, 6515:best_bid_estimate
+   執行以券商即時成交為準；無有效價格者不計算漲跌幅。
+✅ 歷史記錄已寫入: /var/repo/tw-stock-research/price-history/daily-prices.csv
+   總筆數: 12 (含表頭)

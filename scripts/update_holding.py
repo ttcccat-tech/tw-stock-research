@@ -76,10 +76,11 @@ def update_holding(ticker, change_shares=None, new_total_shares=None,
     conn.close()
 
     print(f"✅ {ticker} 庫存更新:")
-    print(f"   舊: {old_shares} 股 @ {old_avg:.2f if old_avg else 0}")
+    old_avg_s = f"{old_avg:.2f}" if old_avg else "0.00"
+    print(f"   舊: {old_shares} 股 @ {old_avg_s}")
     print(f"   新: {new_shares} 股 @ {new_avg:.2f} (成本 {cost_basis:,.0f})")
-    if change_shares and old_shares > 0:
-        diff = new_avg - old_avg if new_avg else 0
+    if change_shares and old_shares > 0 and new_avg and old_avg:
+        diff = new_avg - old_avg
         print(f"   變動: {change_shares:+,} 股, 平均成本 {'上修' if diff>0 else '下修' if diff<0 else '不變'} {abs(diff):.2f}")
 
 
