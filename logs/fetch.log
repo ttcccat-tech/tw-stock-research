@@ -55,3 +55,27 @@ FileNotFoundError: [Errno 2] No such file or directory: '/var/repo/tw-stock-rese
    執行以券商即時成交為準；無有效價格者不計算漲跌幅。
 ✅ 歷史記錄已寫入: /var/repo/tw-stock-research/price-history/daily-prices.csv
    總筆數: 12 (含表頭)
+📊 Quinn 收盤價記錄器 (機械抓取 — 純資料, 無分析)
+   監控標的: 11 支
+   當下時間: 2026-07-23 13:30:01
+   市場狀態: closed
+
+代碼     名稱               成交       昨收      漲跌     漲跌幅        成交量     PE     殖利率
+-------------------------------------------------------------------------------------
+2753 八方雲集: 無報價資料
+1734 杏輝: 無報價資料
+6509 聚和國際: 無報價資料
+2834 臺企銀: 無報價資料
+3479 安勤: 無報價資料
+6412 群電: 無報價資料
+2241 艾姆勒: 無報價資料
+4977 眾達-KY: 無報價資料
+6472 保瑞: 無報價資料
+6409   旭隼          1005.00   961.00  +44.00  +4.58%        301  28.59    3.68
+6515 穎崴: 無報價資料
+✅ SQLite 同步寫入: /var/repo/tw-stock-research/data/tw_stock.db
+
+⚠️ z 無最新成交者採最佳買一／OHLC 估算：6409:best_bid_estimate
+   執行以券商即時成交為準；無有效價格者不計算漲跌幅。
+✅ 歷史記錄已寫入: /var/repo/tw-stock-research/price-history/daily-prices.csv
+   總筆數: 13 (含表頭)

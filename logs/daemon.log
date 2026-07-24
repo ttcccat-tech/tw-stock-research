@@ -19,3 +19,8 @@ FileNotFoundError: [Errno 2] No such file or directory: '/var/repo/tw-stock-rese
    將於 9:00–13:30 期間每 30 分鐘執行監控 (Ctrl+C 中止)
 
 [08:55:01] 已收盤，守護模式結束
+
+[08:55:02] Quinn 盤中監控守護模式啟動
+   將於 9:00–13:30 期間每 30 分鐘執行監控 (Ctrl+C 中止)
+
+[08:55:02] 已收盤，守護模式結束
