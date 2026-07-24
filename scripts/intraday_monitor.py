@@ -67,11 +67,14 @@ def should_alert(code, current_price, prev_alert_price=None):
             "msg": f"2025/11 (-21%) + 2026/05 (-5%) 雙重月營收年減，2026/6 月營收未恢復年增前不建議加碼"
         }
 
-    # 規則 0.5: 2241 艾姆勒專屬 — 反彈訊號 (持股觀察中，觸發才推播)
-    if code == "2241" and current_price:
-        rebound_signal = check_rebound_signal(current_price)
-        if rebound_signal:
-            return rebound_signal
+    # 規則 0.5: 持股觀察標的專屬 — 反彈訊號 (持股中，觸發才推播)
+    # 適用所有持股中的標的 (艾姆勒/八方雲集/聚和)
+    if has_holding(code) and current_price:
+        cost, holding_zone = get_holding_info(code)
+        if cost is not None and holding_zone is not None:
+            rebound_signal = check_rebound_signal(code, current_price, cost, holding_zone)
+            if rebound_signal:
+                return rebound_signal
 
     # 規則 0.8: 已持股標的不推播「進場訊號」(艾姆勒持股中，老大說只等反彈)
     if has_holding(code):
@@ -118,9 +121,37 @@ def has_holding(code):
     return row is not None
 
 
-# ========== 艾姆勒 2241 反彈訊號 (持股觀察模式) ==========
-def get_aimule_history():
-    """從 DB 取艾姆勒最近 30 日收盤 + 成交量"""
+def get_holding_info(code):
+    """從 holdings 取平均成本；從 BUY_ZONES 取進場區間
+
+    回傳: (cost, zone_dict) 或 (None, None) 如果該標的不在監控清單
+    """
+    import sqlite3
+    db_path = REPO_DIR / "data" / "tw_stock.db"
+    if not db_path.exists():
+        return None, None
+
+    # 1. 取平均成本
+    conn = sqlite3.connect(str(db_path))
+    cur = conn.cursor()
+    cur.execute("SELECT avg_cost FROM holdings WHERE ticker=? AND shares > 0", (code,))
+    row = cur.fetchone()
+    conn.close()
+
+    if not row:
+        return None, None
+
+    cost = row[0]
+    zone = BUY_ZONES.get(code)
+    if not zone:
+        return None, None
+
+    return cost, zone
+
+
+# ========== 持股觀察通用函數 ==========
+def get_holding_history(code):
+    """從 DB 取指定股票最近 30 日收盤 + 成交量 (通用版)"""
     import sqlite3
     db_path = REPO_DIR / "data" / "tw_stock.db"
     if not db_path.exists():
@@ -129,9 +160,9 @@ def get_aimule_history():
     cur = conn.cursor()
     cur.execute("""
         SELECT date, close, volume_lots FROM price_history
-        WHERE ticker='2241' AND close IS NOT NULL
+        WHERE ticker=? AND close IS NOT NULL
         ORDER BY date DESC LIMIT 30
-    """)
+    """, (code,))
     rows = cur.fetchall()
     conn.close()
     return rows
@@ -163,24 +194,31 @@ def calc_rsi(prices, n=14):
     return 100 - (100 / (1 + rs))
 
 
-def check_rebound_signal(current_price):
+def check_rebound_signal(code, current_price, cost, zone):
     """
-    艾姆勒 2241 反彈訊號判斷 — 三層確認
-    第一層 (必要): A 站上5MA 連2日 / B 站上34.50 / C 量>5日均量1.5倍
-    第二層 (充分): D 5MA黃金交叉10MA / E RSI從<30回升>30 / F MACD柱由負轉正
-    第三層 (強力): G 突破36.00 / H 月線翻揚
+    通用反彈訊號判斷 — 持股觀察模式 (適用任何持股標的)
+    三層確認邏輯自動根據 cost/zone 計算門檻:
+
+    第一層 (必要): A 站上5MA / B 站上成本價 / C 量>5日均量1.5倍 (參考)
+    第二層 (充分): D 5MA黃金交叉10MA / E RSI>30 / F 日K轉強
+    第三層 (強力): G 突破Buy Zone中段 / H 站上月線MA20
+
+    Args:
+        code: 股票代碼 (如 '2241')
+        current_price: 現價
+        cost: 平均成本 (從 holdings 表)
+        zone: 進場區間 dict {buy_min, buy_max, target, stop}
 
     回傳: dict (訊號) 或 None
     """
-    history = get_aimule_history()
+    history = get_holding_history(code)
     if len(history) < 5:
         return None  # 資料不足
 
-    # DB 最新是昨收，所以用 DB 最後一筆 + 今天現價合成
+    # DB 最新是昨收，用今天現價替換
     prices_db = [r[1] for r in history]  # 收盤價序列 (DESC)
     volumes_db = [r[2] for r in history if r[2]]  # 量 (DESC)
 
-    # 用今天現價替換最新一筆 (因為 DB 的是昨日收盤)
     prices = [current_price] + prices_db[1:] if prices_db else [current_price]
     volumes = volumes_db[:5] if len(volumes_db) >= 5 else volumes_db
 
@@ -193,47 +231,49 @@ def check_rebound_signal(current_price):
     rsi = calc_rsi(prices, 14) if len(prices) >= 15 else None
     avg_vol_5d = sum(volumes[:5]) / 5 if len(volumes) >= 5 else 0
 
+    # === 動態門檻 (根據成本和 Buy Zone) ===
+    cost_threshold = cost  # B: 站上成本價
+    zone_mid = (zone["buy_min"] + zone["buy_max"]) / 2  # G: Buy Zone 中段
+    strong_target = zone["buy_min"] + (zone["buy_max"] - zone["buy_min"]) * 0.4  # Buy Zone 前 40%
+
     triggered = []
 
     # === 第一層：價格拉脫 (必要) ===
-    # A: 收盤站上 5MA 連 2 日 (近似判斷：現價 > 5MA)
-    if current_price > ma5:
+    # A: 現價 > 5MA
+    if ma5 and current_price > ma5:
         triggered.append(("A_站上5MA", f"現價 {current_price} > 5MA {ma5:.2f}"))
 
-    # B: 收盤站上 34.50 (成本價之上)
-    if current_price >= 34.50:
-        triggered.append(("B_站上成本", f"現價 {current_price} ≥ 34.50"))
+    # B: 現價 ≥ 成本價
+    if current_price >= cost_threshold:
+        triggered.append(("B_站上成本", f"現價 {current_price} ≥ 成本 {cost_threshold}"))
 
-    # C: 量能放大 (>5日均量 1.5 倍)
-    # 盤中無法即時量，用近 5 日均量參考 (僅標示，不當觸發條件)
+    # C: 量能參考 (僅顯示，不算觸發)
     if avg_vol_5d > 0 and len(volumes) >= 5:
-        # 只在量能參考資訊中顯示，不算觸發
         vol_info = f"5日均量 {avg_vol_5d:.0f} 張 (今日盤中需 ≥{avg_vol_5d*1.5:.0f})"
     else:
         vol_info = None
 
     # === 第二層：趨勢翻多 (充分) ===
-    # D: 5MA 黃金交叉 10MA
+    # D: 5MA > 10MA (黃金交叉後)
     if ma5 and ma10 and ma5 > ma10:
-        # 簡化判斷：5MA 在 10MA 之上視為黃金交叉後
         triggered.append(("D_5MA>10MA", f"5MA {ma5:.2f} > 10MA {ma10:.2f}"))
 
-    # E: RSI 從超賣區回升
+    # E: RSI > 30 (從超賣回升)
     if rsi and rsi > 30:
         triggered.append(("E_RSI轉強", f"RSI {rsi:.1f} > 30"))
 
-    # F: MACD 柱狀圖由負轉正 (簡化：收盤 > 開盤 且 量增)
+    # F: 現價 > 昨收 (日 K 轉強)
     if len(history) >= 2:
         prev_close = history[1][1]
         if current_price > prev_close:
             triggered.append(("F_日K轉強", f"現價 {current_price} > 昨收 {prev_close}"))
 
     # === 第三層：結構突破 (強力) ===
-    # G: 突破盤整區上緣 36.00
-    if current_price >= 36.00:
-        triggered.append(("G_突破36", f"現價 {current_price} ≥ 36.00 盤整上緣"))
+    # G: 突破 Buy Zone 中段
+    if current_price >= zone_mid:
+        triggered.append(("G_突破BuyZone", f"現價 {current_price} ≥ Buy Zone 中段 {zone_mid:.2f}"))
 
-    # H: 月線翻揚 (簡化：現價 > MA20)
+    # H: 站上月線 MA20
     if ma20 and current_price > ma20:
         triggered.append(("H_站上月線", f"現價 {current_price} > MA20 {ma20:.2f}"))
 
@@ -249,16 +289,16 @@ def check_rebound_signal(current_price):
 
     # 判斷加碼建議
     if any(t[0].startswith(("G_", "H_")) for t in triggered):
-        action = "🔴 強力訊號 — 建議加碼至 Buy Zone 中段 (2,000 股)"
+        action = "🔴 強力訊號 — 建議加碼至 Buy Zone 中段"
     elif any(t[0].startswith(("D_", "E_", "F_")) for t in triggered):
-        action = "🟠 積極訊號 — 建議加碼 2 批 (2,000 股)"
+        action = "🟠 積極訊號 — 建議加碼 2 批"
     elif len([t for t in triggered if t[0].startswith(("A_", "B_", "C_"))]) >= 2:
-        action = "🟡 保守訊號 — 建議加碼 1 批 (1,000 股)"
+        action = "🟡 保守訊號 — 建議加碼 1 批"
     else:
         action = f"⚪ 觀察中 — 觸發 {len(triggered)} 個條件，持續追蹤"
 
     return {
-        "type": "📈 2241 艾姆勒反彈訊號",
+        "type": f"📈 {code} {WATCHLIST.get(code, ('', '', ''))[1]} 反彈訊號",
         "msg": f"{action}\n觸發: {codes_summary}\n{details}"
     }
 
