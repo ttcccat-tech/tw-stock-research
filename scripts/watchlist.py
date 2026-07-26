@@ -108,14 +108,14 @@ SCAN_WATCHLIST = {
 SCAN_STATUS = {
     # === 已轉主清單 (老大 2026-07-16 接受) ===
     "6472": "ARCHIVED_TRANSFERRED",  # → 主清單
-    "4540": "ARCHIVED_TRANSFERRED",  # → 主清單
+    "6409": "ARCHIVED_TRANSFERRED",  # → 主清單（2026-07-16 接受；修正舊錯碼 4540）
     "6515": "ARCHIVED_TRANSFERRED",  # → 主清單
     # === 達標待 8/1 月度提案 (2026-07-19 週報評估) ===
-    "6446": "RECOMMEND_ADD",     # 藥華藥 - 評分 80, 達標
-    "3131": "RECOMMEND_ADD",     # 弘塑 - 評分 78, 達標
-    "3583": "RECOMMEND_ADD",     # 辛耘 - 評分 76, 達標
-    "6187": "RECOMMEND_ADD",     # 萬潤 - 評分 75, 達標
-    "2891": "RECOMMEND_ADD",     # 中信金 - 評分 76, 達標
+    "6446": "RECOMMEND_ADD",     # 藥華藥 - 評分 80, 達標，留待 8/1 月度提案
+    "3131": "WATCH",             # 弘塑 - 2026-07-26 估值/券商目標下修，降為觀察
+    "3583": "WATCH",             # 辛耘 - 2026/06 營收年減，等待 Q2 毛利驗證
+    "6187": "WATCH",             # 萬潤 - 題材強但千元價位估值風險高
+    "2891": "WATCH",             # 中信金 - 獲利穩健但估值已先行反映
     # === 持續 WATCH ===
     "4123": "WATCH",       # 晟德
     # === 繼續 EVALUATING ===
@@ -127,11 +127,12 @@ SCAN_STATUS = {
     "2882": "EVALUATING",  # 國泰金
     "2603": "EVALUATING",  # 長榮
     "2609": "EVALUATING",  # 陽明
-    "1301": "EVALUATING",  # 台塑
+    "1301": "ARCHIVED",    # 台塑 - 2026-07-26 評分 48，產能過剩未根治
     "1303": "EVALUATING",  # 南亞
     "0050": "NEW",         # ETF 大盤
     "0056": "NEW",         # ETF 高股息
     "00878": "NEW",        # ETF 高股息
+    "6224": "ARCHIVED",    # 聚鼎 - 2026-07-26 評分 48，財報/技術惡化
 }
 
 

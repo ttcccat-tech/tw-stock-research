@@ -30,31 +30,31 @@ def score_stock(code, info, status):
         "default": 65,
         # 2026-07-19 週報更新 (after 7/17 大盤崩盤)
         "6515": 77,  # 穎崴 - AI 測試介面
-        "4540": 78,  # 旭隼 - AI UPS
-        "3131": 78,  # 弘塑 - CoWoS 封測 (本週達標)
-        "3583": 76,  # 辛耘 - 半導體設備 (本週達標)
-        "6187": 75,  # 萬潤 - CoWoS 設備 (本週達標)
-        "5309": 65,  # 系統電 - 工業電腦
-        "6224": 66,  # 聚鼎 - 散熱
+        "6409": 72,  # 旭隼 - 修正錯碼；營收轉正但 HVDC 貢獻仍遠
+        "3131": 67,  # 弘塑 - 題材強，但估值與券商目標價下修
+        "3583": 66,  # 辛耘 - 6 月營收年減，等待 Q2 毛利驗證
+        "6187": 68,  # 萬潤 - 設備題材強，千元價位估值風險高
+        "5309": 54,  # 系統電 - Q1 EPS 弱、估值過高
+        "6224": 48,  # 聚鼎 - 財報與技術惡化，建議封存
         # 生技/醫材
-        "6472": 82,  # 保瑞 - CDMO
+        "6472": 64,  # 保瑞 - 關稅/併購整合風險，暫緩新增
         "6446": 80,  # 藥華藥 - 新藥 (本週達標)
-        "4147": 65,  # 中裕 - 生技
-        "4123": 70,  # 晟德 - 生技控股
+        "4147": 57,  # 中裕 - 營收改善但產品集中
+        "4123": 52,  # 晟德 - 轉投資獲利可見度不足
         # 金融
-        "2891": 76,  # 中信金 (本週達標)
-        "2884": 72,  # 玉山金
+        "2891": 73,  # 中信金 - 獲利佳但不追高
+        "2884": 73,  # 玉山金
         "2885": 73,  # 元大金
-        "2882": 71,  # 國泰金
+        "2882": 72,  # 國泰金
         # 傳產
-        "2603": 65,  # 長榮
-        "2609": 60,  # 陽明
-        "1301": 55,  # 台塑
-        "1303": 58,  # 南亞
+        "2603": 62,  # 長榮 - SCFI 轉弱與治理事件
+        "2609": 55,  # 陽明 - 運價敏感度高
+        "1301": 48,  # 台塑 - 產能過剩未根治
+        "1303": 52,  # 南亞 - 營收成長但技術/籌碼惡化
         # ETF
-        "0050": 75,  # 元大台灣 50
-        "0056": 70,  # 高股息
-        "00878": 68,  # 國泰永續高股息
+        "0050": 70,  # 元大台灣 50 - 權值集中
+        "0056": 68,  # 高股息 - 配息不等於總報酬
+        "00878": 69,  # 國泰永續高股息
     }
     return base_scores.get(code, base_scores["default"])
 
@@ -81,13 +81,17 @@ def recommend_actions(results):
     actions = []
     for r in results:
         score = r["score"]
-        if score >= 75 and r["status"] not in ("ARCHIVED", "RECOMMEND_ADD"):
+        if score >= 75 and r["status"] not in (
+            "ARCHIVED", "ARCHIVED_TRANSFERRED", "ACCEPTED", "RECOMMEND_ADD"
+        ):
             actions.append({
                 **r,
                 "action": "🟢 RECOMMEND_ADD",
                 "msg": f"評分 {score} ≥ 75, 建議老大加入監控"
             })
-        elif score < 50 and r["status"] not in ("ARCHIVED", "RECOMMEND_REMOVE"):
+        elif score < 50 and r["status"] not in (
+            "ARCHIVED", "ARCHIVED_TRANSFERRED", "ACCEPTED", "RECOMMEND_REMOVE"
+        ):
             actions.append({
                 **r,
                 "action": "🔴 RECOMMEND_REMOVE",
@@ -103,23 +107,28 @@ def recommend_actions(results):
 
 
 def check_main_list():
-    """健康檢查主清單 (8 支)"""
+    """健康檢查任務契約的原始 11 支主清單。"""
     main_results = []
     # 主清單評分 (Quinn 主觀, 之後會用 reports/*.md 自動計算)
     main_scores = {
-        "2753": 62,  # 八方雲集 - Hold 中性偏多
-        "1734": 58,  # 杏輝 - 杏國拖累, 食安風險
+        "2753": 72,  # 八方雲集 - 營收穩健、持倉續抱
+        "1734": 57,  # 杏輝 - 增速降溫，建議降倉
         "6509": 76,  # 聚和 - 看好
-        "2834": 72,  # 台企銀 - 存股穩健
-        "3479": 70,  # 安勤 - Edge AI 題材
-        "6412": 75,  # 群電 - AI 電源 + 殖利率
-        "2241": 73,  # 艾姆勒 - AI 液冷 (現價接近停損)
-        "4977": 74,  # 眾達 - CPO 題材
+        "2834": 69,  # 台企銀 - 接近目標，除權息後再評估
+        "3479": 79,  # 安勤 - 營收加速，但不追高
+        "6412": 63,  # 群電 - 營收仍連續年減
+        "2241": 48,  # 艾姆勒 - 盈餘未驗證、風控反覆被測
+        "4977": 70,  # 眾達 - CPO 強勢，H1 營收仍弱
+        "6472": 61,  # 保瑞 - 關稅與整合風險，等 Q2
+        "6409": 74,  # 旭隼 - 營收轉正、HVDC 遠期選擇權
+        "6515": 77,  # 穎崴 - 基本面最強、估值風險高
     }
     for code, score in main_scores.items():
         name = WATCHLIST.get(code, ("", "", ""))[1]
         risk = ""
-        if score < 60:
+        if score < 50:
+            risk = "🔴 論點/風控惡化, 建議出清或移除"
+        elif score < 60:
             risk = "⚠️ 評分偏低, 建議檢視是否降倉"
         elif score >= 75:
             risk = "✅ 優質標的, 可加碼"
@@ -130,9 +139,9 @@ def check_main_list():
 def main():
     print(f"\n🤖 Quinn 主動選股顧問 — 週報 ({datetime.now().strftime('%Y-%m-%d')})\n")
     print("=" * 70)
-    print("📊 主清單健康檢查 (8 支)")
-    print("=" * 70)
     main_list = check_main_list()
+    print(f"📊 主清單健康檢查 ({len(main_list)} 支)")
+    print("=" * 70)
     for r in main_list:
         print(f"  {r['code']} {r['name']:<8} 評分 {r['score']:<3} {r['risk']}")
 
