@@ -34,7 +34,7 @@ BUY_ZONES = {
     "2834": {"buy_min": 14.0, "buy_max": 17.5, "target": 19.0, "stop": None, "rating": "Buy (存股)"},
     "3479": {"buy_min": 115.0, "buy_max": 160.0, "target": 165.0, "stop": 115.0, "rating": "Watch"},
     "6412": {"buy_min": 75.0, "buy_max": 100.0, "target": 100.0, "stop": None, "rating": "Buy (存股)"},
-    "2241": {"buy_min": 34.0, "buy_max": 45.0, "target": 85.0, "stop": 34.0, "rating": "Buy 爆發型 (恐慌低接修正)"},  # 艾姆勒 — 2026-07-21 跌至 35.65，Buy Zone 下修至 34-45，停損同步下修
+    "2241": {"buy_min": 34.0, "buy_max": 45.0, "target": 85.0, "stop": 30.0, "rating": "Buy 爆發型 (恐慌低接修正)"},  # 艾姆勒 — 2026-07-21 跌至 35.65，Buy Zone 下修至 34-45，停損同步下修；2026-07-28 加入中期持有規則，目標價 85 (12 月 60-70 / 18 月 75-85)
     "4977": {"buy_min": 120.0, "buy_max": 200.0, "target": 220.0, "stop": 120.0, "rating": "Buy 核心持股"},
     # === 新加入 3 支 (Quinn 校正後) ===
     "6472": {"buy_min": 380.0, "buy_max": 470.0, "target": 580.0, "stop": 365.0, "rating": "Buy"},   # 保瑞
