@@ -269,13 +269,35 @@ def quinn_analyst_view(ticker, name, current_price, cost, shares, tech, zone):
 
 
 def send_discord(message):
-    """推播 Discord"""
+    """推播 Discord — 多重 fallback 確保 cron 環境也能送達
+
+    1. 直接 import hermes_tools (互動環境)
+    2. subprocess 呼叫 `hermes send -t discord` (cron 環境主路徑)
+    3. fallback → 寫 log + 回傳 False
+    """
+    # 方法 1: hermes_tools (互動環境)
     try:
         from hermes_tools import send_message as sm
         sm(action="send", message=message)
         return True
-    except Exception:
-        return False
+    except (ImportError, Exception):
+        pass
+
+    # 方法 2: hermes CLI 子進程 (cron 環境)
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["hermes", "send", "-t", "discord", "-q", message],
+            capture_output=True, text=True, timeout=30,
+        )
+        if result.returncode == 0:
+            return True
+        else:
+            print(f"   ⚠️ hermes CLI 回傳非零: rc={result.returncode} stderr={result.stderr[:200]}")
+    except (FileNotFoundError, subprocess.TimeoutExpired, Exception) as e:
+        print(f"   ⚠️ hermes CLI 呼叫失敗: {e}")
+
+    return False
 
 
 def main():
