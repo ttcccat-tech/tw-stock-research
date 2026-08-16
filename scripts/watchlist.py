@@ -88,12 +88,14 @@ SCAN_WATCHLIST = {
     "6187": {"exchange": "tse", "name": "萬潤",   "market": "上市", "theme": "CoWoS 設備", "added_at": "2026-07-16", "note": "封測自動化設備", "status": "EVALUATING"},
     "5309": {"exchange": "tse", "name": "系統電", "market": "上市", "theme": "工業電腦", "added_at": "2026-07-16", "note": "IPC 次族群", "status": "NEW"},
     "6224": {"exchange": "tse", "name": "聚鼎",   "market": "上市", "theme": "散熱元件", "added_at": "2026-07-16", "note": "高分子散熱", "status": "NEW"},
-    "3008": {"exchange": "tse", "name": "大立光", "market": "上市", "theme": "手機鏡頭/車用光學", "added_at": "2026-08-02", "note": "週會新增；估值修復候選，等 1,800-1,880 與新機出貨驗證", "status": "WATCH"},
+    "3008": {"exchange": "tse", "name": "大立光", "market": "上市", "theme": "手機鏡頭/車用光學", "added_at": "2026-08-02", "note": "2026-08-16 週報升級 RECOMMEND_ADD；7 月營收 54.13 億月增+31% 寫今年新高；法說會看好 8 月拉貨；Q1 EPS 46.63 / 毛利率 49.41%；CPO 試產線 9 月啟動", "status": "RECOMMEND_ADD"},
     # === 生技/醫材 ===
     "6472": {"exchange": "tse", "name": "保瑞",     "market": "上市", "theme": "CDMO/學名藥", "added_at": "2026-07-16", "note": "2024 收購 Upsher-Smith", "status": "ACCEPTED"},
     "6446": {"exchange": "tse", "name": "藥華藥",   "market": "上市", "theme": "新藥 (P1101)", "added_at": "2026-07-16", "note": "罕病藥、減肥藥海外授權"},
     "4147": {"exchange": "tse", "name": "中裕",     "market": "上市", "theme": "愛滋新藥", "added_at": "2026-07-16", "note": "Trogarzo 已上市"},
     "4123": {"exchange": "tse", "name": "晟德",     "market": "上市", "theme": "生技控股", "added_at": "2026-07-16", "note": "轉投資多家高潛力公司"},
+    # === 老大 2026-08-10 新建議加入觀察池 ===
+    "7780": {"exchange": "otc", "name": "大研生醫*",   "market": "上櫃", "theme": "保健食品 (魚油)", "added_at": "2026-08-10", "note": "台灣魚油市占第一, 日本順利擴張, 拆股後低價, 庫藏區保護 12.75"},
     # === 金融/壽險 (民營金控) ===
     "2891": {"exchange": "tse", "name": "中信金",   "market": "上市", "theme": "民營金控", "added_at": "2026-07-16", "note": "民營金控獲利王"},
     "2884": {"exchange": "tse", "name": "玉山金",   "market": "上市", "theme": "民營金控", "added_at": "2026-07-16", "note": "海外布局完整"},
@@ -121,6 +123,8 @@ SCAN_STATUS = {
     "5904": "ARCHIVED_TRANSFERRED",  # → 主清單（拆股後基本面 +34.7%）
     # === 達標待 8/1 月度提案 (2026-07-19 週報評估) ===
     "6446": "RECOMMEND_ADD",     # 藥華藥 - 2026-08-09 評分 84，第一新增順位；8/12 法說後 1,020-1,050 分批
+    # === 老大 2026-08-10 新觀察池 (待評估) ===
+    "7780": "WATCH",             # 大研生醫* - 台灣魚油王，拆股 16.6，庫藏區 12.75；2026 營收年增 38-41%
     "3131": "WATCH",             # 弘塑 - 2026-07-26 估值/券商目標下修，降為觀察
     "3583": "WATCH",             # 辛耘 - 2026/06 營收年減，等待 Q2 毛利驗證
     "6187": "WATCH",             # 萬潤 - 題材強但千元價位估值風險高
@@ -144,7 +148,7 @@ SCAN_STATUS = {
     "0056": "NEW",         # ETF 高股息
     "00878": "NEW",        # ETF 高股息
     "6224": "ARCHIVED",    # 聚鼎 - 2026-08-02 評分 49，財報/技術未修復
-    "3008": "WATCH",       # 大立光 - 2026-08-02 新增，等 1,800-1,880 與基本面驗證
+    "3008": "RECOMMEND_ADD",  # 大立光 - 2026-08-16 週報升級；7 月營收 54.13 億月增+31% 寫今年新高 + 法說會看好 8 月拉貨 + Q1 EPS 46.63 + CPO 9 月啟動
 }
 
 

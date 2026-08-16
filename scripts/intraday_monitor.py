@@ -314,6 +314,42 @@ def http_get(url, timeout=15):
         return r.read().decode("utf-8")
 
 
+def parse_mis_price(m):
+    """Pitfall 235: MIS 報價解析優先級 trade > bid_estimate > ask_estimate > prev_close"""
+    z = m.get("z")
+    if z and z not in ("-", "", None):
+        try:
+            return float(z), "trade"
+        except ValueError:
+            pass
+    b = m.get("b")
+    if b and b != "-":
+        try:
+            # Pitfall 235+: b 第一檔可能為 0.0000 (無買盤), 需往後找第一個 > 0 的檔位
+            for v in b.split("_"):
+                f = float(v)
+                if f > 0:
+                    return f, "bid_estimate"
+        except (ValueError, AttributeError):
+            pass
+    a = m.get("a")
+    if a and a != "-":
+        try:
+            for v in a.split("_"):
+                f = float(v)
+                if f > 0:
+                    return f, "ask_estimate"
+        except (ValueError, AttributeError):
+            pass
+    y = m.get("y")
+    if y and y != "-":
+        try:
+            return float(y), "prev_close"
+        except ValueError:
+            pass
+    return 0, "no_data"
+
+
 def fetch_quote(pairs):
     if not pairs:
         return {}
@@ -473,12 +509,8 @@ def main():
         if not m:
             continue
 
-        price_str = m.get("z") or m.get("b") or "0"
-        try:
-            price = float(price_str) if price_str not in ("-", "", None) else 0
-        except ValueError:
-            continue
-
+        # Pitfall 235: MIS 解析優先級 trade > bid_estimate > ask_estimate > prev_close
+        price, quality = parse_mis_price(m)
         if price <= 0:
             continue
 
