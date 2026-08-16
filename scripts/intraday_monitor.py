@@ -67,6 +67,31 @@ def should_alert(code, current_price, prev_alert_price=None):
             "msg": f"2025/11 (-21%) + 2026/05 (-5%) 雙重月營收年減，2026/6 月營收未恢復年增前不建議加碼"
         }
 
+    # 規則 0.6: 7780 大研生醫* 專屬 — B 計畫三批觸發
+    # 老大 2026-08-10 決策：分 3 批進場 (30/40/30)
+    # 第 1 批 15.5-16: 恐慌試單
+    # 第 2 批 12.75-13.5: 庫藏區下限加碼
+    # 第 3 批 17.5-18: 突破月線滿足
+    if code == "7780" and current_price and not has_holding(code):
+        # 第 1 批: 跌到 15.5-16 (恐慌試單)
+        if 15.5 <= current_price <= 16.0:
+            return {
+                "type": "🟢🟢 7780 第 1 批觸發 - 恐慌試單",
+                "msg": f"B 計畫 30% 部位 | 建議進場 3,000 股 | 距目標 25 元 (+{((25 - current_price) / current_price * 100):+.1f}%)"
+            }
+        # 第 2 批: 跌到 12.75-13.5 (庫藏區下限加碼)
+        elif 12.75 <= current_price <= 13.5:
+            return {
+                "type": "🟢🟢🟢 7780 第 2 批觸發 - 庫藏區加碼",
+                "msg": f"B 計畫 40% 部位 | 庫藏區下限保護 | 建議加碼 4,000 股 | 距目標 25 元 (+{((25 - current_price) / current_price * 100):+.1f}%)"
+            }
+        # 第 3 批: 突破月線 18.4 + 站穩
+        elif 17.5 <= current_price <= 18.5:
+            return {
+                "type": "🟢🟢🟢 7780 第 3 批觸發 - 突破月線",
+                "msg": f"B 計畫 30% 部位滿足 | 建議滿足 3,000 股 | 距目標 25 元 (+{((25 - current_price) / current_price * 100):+.1f}%)"
+            }
+
     # 規則 0.5: 持股觀察標的專屬 — 反彈訊號 (持股中，觸發才推播)
     # 適用所有持股中的標的 (艾姆勒/八方雲集/聚和)
     if has_holding(code) and current_price:
