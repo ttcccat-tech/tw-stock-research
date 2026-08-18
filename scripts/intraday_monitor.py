@@ -67,29 +67,30 @@ def should_alert(code, current_price, prev_alert_price=None):
             "msg": f"2025/11 (-21%) + 2026/05 (-5%) 雙重月營收年減，2026/6 月營收未恢復年增前不建議加碼"
         }
 
-    # 規則 0.6: 7780 大研生醫* 專屬 — B 計畫三批觸發
+    # 規則 0.6: 7780 大研生醫* 專屬 — B 計畫三批觸發 (提醒型，非強制)
     # 老大 2026-08-10 決策：分 3 批進場 (30/40/30)
     # 第 1 批 15.5-16: 恐慌試單
     # 第 2 批 12.75-13.5: 庫藏區下限加碼
     # 第 3 批 17.5-18: 突破月線滿足
+    # ⚠️ Quinn 是「分析師角色」，所有觸發僅為「提醒」，實際下單由老大決定
     if code == "7780" and current_price and not has_holding(code):
-        # 第 1 批: 跌到 15.5-16 (恐慌試單)
+        # 第 1 批: 跌到 15.5-16 (恐慌試單提醒)
         if 15.5 <= current_price <= 16.0:
             return {
-                "type": "🟢🟢 7780 第 1 批觸發 - 恐慌試單",
-                "msg": f"B 計畫 30% 部位 | 建議進場 3,000 股 | 距目標 25 元 (+{((25 - current_price) / current_price * 100):+.1f}%)"
+                "type": "🟢🟢 7780 B 計畫第 1 批觸發 - 提醒",
+                "msg": f"B 計畫試單提醒 (30% 部位, 3,000 股) | 距目標 25 元 (+{((25 - current_price) / current_price * 100):+.1f}%) | ⏸️ 最終進場由老大決定"
             }
-        # 第 2 批: 跌到 12.75-13.5 (庫藏區下限加碼)
+        # 第 2 批: 跌到 12.75-13.5 (庫藏區下限提醒)
         elif 12.75 <= current_price <= 13.5:
             return {
-                "type": "🟢🟢🟢 7780 第 2 批觸發 - 庫藏區加碼",
-                "msg": f"B 計畫 40% 部位 | 庫藏區下限保護 | 建議加碼 4,000 股 | 距目標 25 元 (+{((25 - current_price) / current_price * 100):+.1f}%)"
+                "type": "🟢🟢🟢 7780 B 計畫第 2 批觸發 - 提醒",
+                "msg": f"B 計畫加碼提醒 (40% 部位, 4,000 股) | 庫藏區下限保護 | 距目標 25 元 (+{((25 - current_price) / current_price * 100):+.1f}%) | ⏸️ 最終進場由老大決定"
             }
-        # 第 3 批: 突破月線 18.4 + 站穩
+        # 第 3 批: 突破月線 18.4 + 站穩 (突破提醒)
         elif 17.5 <= current_price <= 18.5:
             return {
-                "type": "🟢🟢🟢 7780 第 3 批觸發 - 突破月線",
-                "msg": f"B 計畫 30% 部位滿足 | 建議滿足 3,000 股 | 距目標 25 元 (+{((25 - current_price) / current_price * 100):+.1f}%)"
+                "type": "🟢🟢🟢 7780 B 計畫第 3 批觸發 - 提醒",
+                "msg": f"B 計畫滿足提醒 (30% 部位, 3,000 股) | 突破月線確認 | 距目標 25 元 (+{((25 - current_price) / current_price * 100):+.1f}%) | ⏸️ 最終進場由老大決定"
             }
 
     # 規則 0.5: 持股觀察標的專屬 — 反彈訊號 (持股中，觸發才推播)
@@ -107,6 +108,16 @@ def should_alert(code, current_price, prev_alert_price=None):
         # 跳過「🟢 積極進場訊號」避免干擾
         pass
     else:
+        # 規則 0.9: 5904 寶雅* 專屬 — 老大 2026-08-10 拆股蜜月期 Buy Zone 邏輯
+        # ≤75 建議進場第一批 2,000 股 / 70-75 保守提醒 / >79 等回檔
+        if code == "5904" and current_price:
+            if current_price <= 75:
+                return {
+                    "type": "🟢 5904 寶雅 Buy Zone 進場 (第一批 2,000 股)",
+                    "msg": f"拆股蜜月期 | 建議分批 30/40/30 | 距目標 90 元 (+{((90 - current_price) / current_price * 100):+.1f}%)"
+                }
+            elif current_price > 79:
+                return None  # 等回檔，不提醒
         # 規則 1: 進入「積極進場區」 (buy_min ~ buy_min + 10%) — 只對未持股標的
         aggressive_zone = buy_min + (buy_max - buy_min) * 0.3  # 前 30% 為積極區
         if buy_min <= current_price <= aggressive_zone:
@@ -115,11 +126,11 @@ def should_alert(code, current_price, prev_alert_price=None):
                 "msg": f"{rating} | 距目標價 {((target - current_price) / current_price * 100):+.1f}%"
             }
 
-    # 規則 2: 觸及停損
+    # 規則 2: 觸及停損參考價 (提醒型，非強制)
     if stop is not None and current_price <= stop:
         return {
-            "type": "🚨 觸及停損價",
-            "msg": f"停損價 {stop} | 重新檢視投資邏輯"
+            "type": "🟡 觸及停損參考價 - 提醒",
+            "msg": f"停損參考價 {stop} | ⚠️ 提醒老大評估是否出場 (不強制)"
         }
 
     # 規則 3: 接近目標 (距目標價 < 10%)
@@ -219,6 +230,45 @@ def calc_rsi(prices, n=14):
     return 100 - (100 / (1 + rs))
 
 
+def check_hold_retained_signal(code, current_price, cost, zone, prices):
+    """
+    老大 2026-08-10 決策 — 艾姆勒 2241 保留中專屬訊號邏輯
+
+    訊號規則 (取代通用反彈訊號):
+    - 現價 ≥ target (38) → 🟡 觸發「反彈高點」提醒，老大自行決定是否出清
+    - 現價 ≤ stop (30) → 🔴 強制檢視訊號，老大自行決定是否出場
+    - 現價 34-38 (含成本 34.75 上下) → ⚪ 安靜區，不發訊號
+    - 現價 30-34 → ⚪ 觀察中，不發訊號 (老大說 30 才停損)
+    """
+    name = WATCHLIST.get(code, ('', '', ''))[1]
+    target = zone.get("target")
+    stop = zone.get("stop")
+
+    # 規則 3: 現價 ≤ 停損 → 強制檢視
+    if stop is not None and current_price <= stop:
+        return {
+            "type": f"🚨 {code} {name} 強制檢視訊號",
+            "msg": f"現價 {current_price} 已觸停損 {stop} | 保留中狀態，請老大決定是否出場"
+        }
+
+    # 規則 1: 現價 ≥ target (老大觀察高點 38) → 反彈高點提醒
+    if target is not None and current_price >= target:
+        return {
+            "type": f"🟡 {code} {name} 反彈高點",
+            "msg": f"現價 {current_price} ≥ 觀察高點 {target} | 保留中狀態，老大可考慮出清 (但由老大決定)"
+        }
+
+    # 規則 2: 34-38 (含成本 34.75) 安靜區 → 不發訊號
+    quiet_low = cost - 1 if cost else 34
+    quiet_high = target if target else 38
+    if quiet_low <= current_price < quiet_high:
+        return None
+
+    # 30-34 觀察中 → 不發訊號
+    # 其他價位 → 也不發訊號 (保留中保守原則)
+    return None
+
+
 def check_rebound_signal(code, current_price, cost, zone):
     """
     通用反彈訊號判斷 — 持股觀察模式 (適用任何持股標的)
@@ -249,6 +299,12 @@ def check_rebound_signal(code, current_price, cost, zone):
 
     if len(prices) < 5:
         return None
+
+    # === 2241 艾姆勒「保留中」特殊邏輯 (老大 2026-08-10 決策) ===
+    # 觀察價 36-38 (反彈高點提示) / 停損 30 (強制檢視) / 34-38 區間不通知
+    # buy_min=0/buy_max=0 是「保留中」標記，遇到時不走通用反彈邏輯
+    if zone["buy_min"] <= 0 or zone["buy_max"] <= 0:
+        return check_hold_retained_signal(code, current_price, cost, zone, prices)
 
     ma5 = calc_ma(prices, 5)
     ma10 = calc_ma(prices, 10) if len(prices) >= 10 else None
