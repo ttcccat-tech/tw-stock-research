@@ -511,3 +511,27 @@ FileNotFoundError: [Errno 2] No such file or directory: '/var/repo/tw-stock-rese
    執行以券商即時成交為準；無有效價格者不計算漲跌幅。
 ✅ 歷史記錄已寫入: /var/repo/tw-stock-research/price-history/daily-prices.csv
    總筆數: 211 (含表頭)
+📊 Quinn 收盤價記錄器 (機械抓取 — 純資料, 無分析)
+   監控標的: 11 支
+   當下時間: 2026-08-19 13:30:01
+   市場狀態: closed
+
+代碼     名稱               成交       昨收      漲跌     漲跌幅        成交量     PE     殖利率
+-------------------------------------------------------------------------------------
+2753 八方雲集: 無報價資料
+1734 杏輝: 無報價資料
+6509 聚和國際: 無報價資料
+2834 臺企銀: 無報價資料
+3479 安勤: 無報價資料
+6412 群電: 無報價資料
+2241   艾姆勒           34.45    31.90   +2.55  +7.99%       1323               
+4977   眾達-KY        144.50   151.00   -6.50  -4.30%       1708  33.48    1.44
+6472   保瑞           404.50   404.50   +0.00  +0.00%        317  33.35    2.47
+6409 旭隼: 無報價資料
+6515   穎崴          6370.00  6315.00  +55.00  +0.87%        311 103.39    0.78
+✅ SQLite 同步寫入: /var/repo/tw-stock-research/data/tw_stock.db
+
+⚠️ z 無最新成交者採最佳買一／OHLC 估算：2241:best_bid_estimate, 4977:best_bid_estimate, 6472:best_bid_estimate, 6515:best_bid_estimate
+   執行以券商即時成交為準；無有效價格者不計算漲跌幅。
+✅ 歷史記錄已寫入: /var/repo/tw-stock-research/price-history/daily-prices.csv
+   總筆數: 215 (含表頭)
