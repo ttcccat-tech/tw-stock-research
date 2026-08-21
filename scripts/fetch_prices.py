@@ -88,7 +88,11 @@ def _positive_number(value):
 
 
 def normalized_price(message):
-    """優先取最新成交；無成交時取最佳買一估算，避免虛構 -100%。"""
+    """優先取最新成交；無成交時取最佳買一估算，避免虛構 -100%。
+
+    ⚠️ 重要: 收盤後 MIS API 經常回 'z='-'，此時 fallback 為 best_bid_estimate
+    這是已知限制 - 收盤後立刻抓可能不準，建議延遲到 13:35 或 13:40 後抓取
+    """
     last = _positive_number(message.get("z"))
     if last is not None:
         return last, "last"
@@ -99,6 +103,32 @@ def normalized_price(message):
     if indicative is not None:
         return indicative, "indicative_ohlc"
     return None, "unavailable"
+
+
+def fetch_with_retry(pairs, max_retries=3, delay_sec=5):
+    """帶重試的抓取，解決 MIS API 不穩的問題
+
+    Args:
+        pairs: [(code, info), ...]
+        max_retries: 最大重試次數
+        delay_sec: 每次重試間隔秒數
+
+    Returns:
+        dict: {code: message} 或 {}
+    """
+    import time
+    for attempt in range(max_retries):
+        try:
+            result = fetch_quote(pairs)
+            if result:
+                return result
+            print(f"   ⚠️ 第 {attempt+1} 次抓取失敗，{delay_sec} 秒後重試...")
+            time.sleep(delay_sec)
+        except Exception as e:
+            print(f"   ⚠️ 第 {attempt+1} 次抓取例外: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(delay_sec)
+    return {}
 
 
 def fetch_bwibbu():
@@ -143,7 +173,7 @@ def fetch_tpex_peratio():
 
 
 def get_market_status():
-    """判斷是否收盤 (簡化版：平日 13:30 之後視為收盤)"""
+    """判斷當下是否收盤 (嚴格版：假日不執行)"""
     now = datetime.now()
     if now.weekday() >= 5:  # 週六日
         return "closed_weekend"
@@ -153,8 +183,23 @@ def get_market_status():
     return "closed"
 
 
+def is_trading_day(now=None):
+    """判斷是否為實際交易日 (避開週末)
+
+    ⚠️ 注意: 此函式不處理國定假日 (例如 10/10 雙十節)
+    如果遇到國定假日需要手動暫停 cron job
+    """
+    now = now or datetime.now()
+    return now.weekday() < 5  # 週一至週五
+
+
 # ========== 主程式 ==========
 def main():
+    # 先解析 flag 參數 (從 sys.argv 移除)
+    skip_weekend_check = "--skip-weekend-check" in sys.argv
+    allow_intraday = "--allow-intraday" in sys.argv
+    sys.argv = [a for a in sys.argv if a not in ("--skip-weekend-check", "--allow-intraday")]
+
     # 解析 CLI 參數
     # (預設) 抓全部 WATCHLIST (8 支)
     # [codes...] 指定特定股票
@@ -176,6 +221,26 @@ def main():
     print(f"   監控標的: {len(pairs)} 支")
     print(f"   當下時間: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"   市場狀態: {get_market_status()}")
+
+    # ⚠️ 重要守則：週末不抓 (避免垃圾資料)
+    if not is_trading_day():
+        if skip_weekend_check:
+            print(f"\n⚠️ 週末執行 (使用者指定 --skip-weekend-check)")
+        else:
+            print(f"\n❌ 週末不抓收盤價 (避免 MIS API 回傳上週五舊資料當今日收盤)")
+            print(f"   週末若需查歷史價格，請指定 --skip-weekend-check")
+            return 0
+
+    # ⚠️ 重要守則：盤中不抓 (避免即時價被當收盤價)
+    now = datetime.now()
+    if now.weekday() < 5 and 9 <= now.hour <= 13 and now.minute < 30:
+        if allow_intraday:
+            print(f"\n⚠️ 警告: 盤中執行 (現在 {now.strftime('%H:%M')} < 13:30，使用者指定 --allow-intraday)")
+        else:
+            print(f"\n⚠️ 警告: 盤中執行 (現在 {now.strftime('%H:%M')} < 13:30)")
+            print(f"   MIS API 在盤中回傳「最後成交」，不等於真實收盤價")
+            print(f"   若要繼續，請加 --allow-intraday 參數")
+            return 0
     print()
 
     # 抓報價
