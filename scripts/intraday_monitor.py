@@ -134,7 +134,8 @@ def should_alert(code, current_price, prev_alert_price=None):
         }
 
     # 規則 3: 接近目標 (距目標價 < 10%)
-    if target and current_price >= target * 0.9:
+    # 保留中標的 (buy_min <= 0) 不適用 — 安靜區由 check_hold_retained_signal 控制
+    if target and current_price >= target * 0.9 and zone["buy_min"] > 0:
         return {
             "type": "🎯 接近目標價",
             "msg": f"目標價 {target} | 評估是否獲利了結"
