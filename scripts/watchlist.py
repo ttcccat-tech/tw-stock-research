@@ -97,12 +97,16 @@ SCAN_WATCHLIST = {
     # === 半導體/AI 設備次族群 ===
     "6515": {"exchange": "tse", "name": "穎崴",   "market": "上市", "theme": "AI 測試介面", "added_at": "2026-07-16", "note": "AI 晶片 probe card 受惠輝達 Blackwell", "status": "ACCEPTED"},
     "6409": {"exchange": "tse", "name": "旭隼",   "market": "上市", "theme": "AI 電源 (UPS)", "added_at": "2026-07-16", "note": "全球前三 AI 機房 UPS 廠，800V DC 合作", "status": "ACCEPTED"},
+    # 2026-08-30 週報：4977 升評 64→70 (8/26 漲停 +10%, 本週 +14.29%, 結構翻多確認)
+    "4977": {"exchange": "tse", "name": "眾達-KY", "market": "上市", "theme": "光通訊/CPO", "added_at": "2026-08-30", "note": "2026-08-30 週報升評 64→70；8/26 漲停 +10%；本週 +14.29%；CPO + 品固雙引擎確認", "status": "ACCEPTED"},
     "3131": {"exchange": "tse", "name": "弘塑",   "market": "上市", "theme": "CoWoS 封測", "added_at": "2026-07-16", "note": "先進封裝設備", "status": "EVALUATING"},
     "3583": {"exchange": "tse", "name": "辛耘",   "market": "上市", "theme": "半導體設備", "added_at": "2026-07-16", "note": "晶圓濕製程設備", "status": "EVALUATING"},
     "6187": {"exchange": "tse", "name": "萬潤",   "market": "上市", "theme": "CoWoS 設備", "added_at": "2026-07-16", "note": "封測自動化設備", "status": "EVALUATING"},
     "5309": {"exchange": "tse", "name": "系統電", "market": "上市", "theme": "工業電腦", "added_at": "2026-07-16", "note": "IPC 次族群", "status": "NEW"},
     "6224": {"exchange": "tse", "name": "聚鼎",   "market": "上市", "theme": "散熱元件", "added_at": "2026-07-16", "note": "高分子散熱", "status": "NEW"},
-    "3008": {"exchange": "tse", "name": "大立光", "market": "上市", "theme": "手機鏡頭/車用光學", "added_at": "2026-08-02", "note": "2026-08-16 週報升級 RECOMMEND_ADD；7 月營收 54.13 億月增+31% 寫今年新高；法說會看好 8 月拉貨；Q1 EPS 46.63 / 毛利率 49.41%；CPO 試產線 9 月啟動", "status": "RECOMMEND_ADD"},
+    "3008": {"exchange": "tse", "name": "大立光", "market": "上市", "theme": "手機鏡頭/車用光學", "added_at": "2026-08-02", "note": "2026-08-30 週報連續 3 週提案；7 月營收 54.13 億月增+31% 寫今年新高；法說會看好 8 月拉貨；Q1 EPS 46.63 / 毛利率 49.41%；CPO 試產線 9 月啟動；評分 79", "status": "RECOMMEND_ADD"},
+    # === 2026-08-30 週報新增升評 ===
+    "2330": {"exchange": "tse", "name": "台積電", "market": "上市", "theme": "存股核心/AI 晶圓代工", "added_at": "2026-08-30", "note": "2026-08-30 週報升評 76→80；觸 Buy Zone 上緣 2,400；7 月 +44.69% 連 3 月歷史新高；全年美元營收上修至略高於 40%；資本支出上修至 600-640 億美元；存股核心邏輯；等回檔 2,200-2,300 才分批定投"},
     # === 生技/醫材 ===
     "6472": {"exchange": "tse", "name": "保瑞",     "market": "上市", "theme": "CDMO/學名藥", "added_at": "2026-07-16", "note": "2024 收購 Upsher-Smith", "status": "ACCEPTED"},
     "6446": {"exchange": "tse", "name": "藥華藥",   "market": "上市", "theme": "新藥 (P1101)", "added_at": "2026-07-16", "note": "罕病藥、減肥藥海外授權"},
@@ -163,7 +167,10 @@ SCAN_STATUS = {
     "0056": "NEW",         # ETF 高股息
     "00878": "NEW",        # ETF 高股息
     "6224": "ARCHIVED",    # 聚鼎 - 2026-08-02 評分 49，財報/技術未修復
-    "3008": "RECOMMEND_ADD",  # 大立光 - 2026-08-16 週報升級；7 月營收 54.13 億月增+31% 寫今年新高 + 法說會看好 8 月拉貨 + Q1 EPS 46.63 + CPO 9 月啟動
+    "3008": "RECOMMEND_ADD",  # 大立光 - 2026-08-30 週報連續 3 週提案；7 月營收 54.13 億月增+31% 寫今年新高 + 法說會看好 8 月拉貨 + Q1 EPS 46.63 + CPO 9 月啟動
+    # === 2026-08-30 週報新增升評 ===
+    "2330": "RECOMMEND_ADD",  # 台積電 - 2026-08-30 週報升評 76→80；觸 Buy Zone 上緣 2,400；7 月 +44.69% 連 3 月歷史新高；存股核心邏輯；等回檔 2,200-2,300
+    "4977": "RECOMMEND_ADD",  # 眾達-KY - 2026-08-30 週報升評 64→70；8/26 漲停 +10%；本週 +14.29%；CPO + 品固雙引擎確認
 }
 
 
